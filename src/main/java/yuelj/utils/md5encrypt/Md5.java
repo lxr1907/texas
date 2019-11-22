@@ -2,10 +2,6 @@ package yuelj.utils.md5encrypt;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
-
-import com.google.common.base.Charsets;
-import com.google.common.hash.Hashing;
 
 /*
  * MD5 算法
@@ -57,72 +53,6 @@ public class Md5 {
 			ex.printStackTrace();
 		}
 		return resultString;
-	}
-
-	/**
-	 * 普通的md5加密,利用guava包
-	 * 
-	 * @param strObj
-	 * @return
-	 */
-	public static String GetMD5Guava(String pwd) {
-		String md = Hashing.md5().newHasher().putString(pwd, Charsets.UTF_8).hash().toString();
-		return md;
-	}
-
-	/**
-	 * md5加盐 md5(md5($pass).$salt); VB;DZ
-	 * 用于dz,vB等论坛程序，discuz的salt长度是6位，vBulletin的salt长度是3位或30位。
-	 * 
-	 * @param upwd
-	 * @param salt
-	 * @return
-	 */
-	public static String getDiscuzMd5(String upwd, String salt) {
-		String pwd = GetMD5Guava(upwd) + salt;//
-		pwd = GetMD5Guava(pwd);
-		return pwd;
-	}
-
-
-	/**
-	 * 传入加密后的密码和盐
-	 * 
-	 * @param password
-	 * @param salt
-	 * @return
-	 */
-	public static String getPasswordStr(String password, String salt) {
-		String pwdnum = "";
-		Date time = new Date();
-		for (int i = 0; i < 1000000; i++) {
-			int pi = i;
-			if (i == 0) {
-				pi = 123456;
-			}
-			String pwd = getDiscuzMd5(pi + "", salt);
-			if (password.equals(pwd)) {
-				pwdnum = pi + "";
-				break;
-			}
-		}
-		Date endtime = new Date();
-		float t = (float) (endtime.getTime() - time.getTime()) / 1000;
-		System.out.println("耗时" + t + "秒");
-		if ("".equals(pwdnum)) {
-			System.out.println("没有得到结果");
-		} else {
-			System.out.println("密码是：" + pwdnum);
-		}
-		return pwdnum;
-	}
-
-	public static Boolean isPasswordRight(String pwd, String salt, String pwdEncrypt) {
-		String mypwdEncrypt = getDiscuzMd5(pwd + "", salt);
-		if (pwdEncrypt.equals(mypwdEncrypt)) {
-			return true;
-		}
-		return false;
 	}
 
 	public static void main(String[] args) {

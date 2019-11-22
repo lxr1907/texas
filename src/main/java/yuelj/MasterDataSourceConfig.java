@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 @Configuration
-@MapperScan(basePackages = "yuelj.dao.impl", sqlSessionFactoryRef = "masterSqlSessionFactory")
+@MapperScan(basePackages = "classpath:mapper", sqlSessionFactoryRef = "masterSqlSessionFactory")
 public class MasterDataSourceConfig {
 	// 精确到 master 目录，以便跟其他数据源隔离
     static final String MAPPER_LOCATION = "classpath:mapper/*.xml";
