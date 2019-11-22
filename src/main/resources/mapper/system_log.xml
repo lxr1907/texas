@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="LogMapper"><!--缓存key -->
+	<select id="selectSystemLog" resultType="SystemLogEntity">
+		select * from system_log where 1=1
+		<if test="id!=null">
+			and id = #{id}
+		</if>
+		<if test="userid!=null">
+			and userid = #{userid}
+		</if>
+		<if test="type!=null">
+			and type = #{type}
+		</if>
+	</select>
+
+	<insert id="insertSystemLog" parameterType="SystemLogEntity">
+		insert into
+		system_log
+		(userid,type,operation,ip,content,datetime,machine,clienttype,token,appversion)
+		values(
+		#{userid}, #{type}, #{operation}, #{ip}, #{content},#{datetime},#{machine},#{clienttype},#{token},#{appversion})
+	</insert>
+
+</mapper>

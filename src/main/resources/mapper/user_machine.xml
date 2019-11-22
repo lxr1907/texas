@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="UserMachineMapper"><!--缓存key -->
+
+	<insert id="addUserMachine" parameterType="UserMachineEntity">
+		insert into
+		user_machine
+		(uid,machine,systemversion,deviceversion,devicetype,getuiid,xiaomiid,otherid1,otherid2)
+		values(#{uid},#{machine},#{systemversion},#{deviceversion},#{devicetype},#{getuiid},#{xiaomiid},#{otherid1},#{otherid2})
+	</insert>
+
+	<update id="updateUserMachine" parameterType="UserMachineEntity">
+		update user_machine
+		<set>
+			<if test="uid != null ">
+				uid = #{uid},
+			</if>
+			<if test="systemversion != null">
+				systemversion = #{systemversion},
+			</if>
+			<if test="deviceversion != null">
+				deviceversion = #{deviceversion},
+			</if>
+			<if test="devicetype != null ">
+				devicetype = #{devicetype},
+			</if>
+			<if test="getuiid != null ">
+				getuiid = #{getuiid},
+			</if>
+			<if test="xiaomiid != null ">
+				xiaomiid = #{xiaomiid},
+			</if>
+			<if test="otherid1 != null ">
+				otherid1 = #{otherid1},
+			</if>
+			<if test="otherid2 != null ">
+				otherid2 = #{otherid2},
+			</if>
+		</set>
+		where machine = #{machine}
+	</update>
+	<select id="queryUserMachine" parameterType="UserMachineEntity"
+		resultType="UserMachineEntity">
+		select * from user_machine
+		<where>
+			<if test="uid !=null">
+				and uid =#{uid}
+			</if>
+			<if test="machine != null">
+				and machine =#{machine}
+			</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="PlayerMapper"><!--缓存key -->
+	<select id="selectPlayer" parameterType="Player" resultType="Player">
+		select *
+		from player
+		where 1=1
+		<if test="id !=null">
+			and id = #{id}
+		</if>
+		<if test="phone!=null and phone !=''">
+			and phone = #{phone}
+		</if>
+		<if test="email !=null and email !=''">
+			and email = #{email}
+		</if>
+		<if test="nickname !=null and nickname !=''">
+			and nickname = #{nickname}
+		</if>
+		<if test="username !=null and username !=''">
+			and username = #{username}
+		</if>
+		<if test="userpwd !=null and userpwd !=''">
+			and userpwd = #{userpwd}
+		</if>
+	</select>
+	<select id="selectPlayerCount" parameterType="Player"
+		resultType="String">
+		select count(1)
+		from player
+		<where>
+			<if test="id!=null">
+				and id = #{id}
+			</if>
+			<if test="phone !=null and phone !=''">
+				and phone = #{phone}
+			</if>
+			<if test="email !=null and email != ''">
+				and password = #{password}
+			</if>
+			<if test="username !=null and username !=''">
+				and username = #{username}
+			</if>
+			<if test="userpwd !=null and userpwd !=''">
+				and userpwd = #{userpwd}
+			</if>
+			<if test="nickname !=null and nickname !=''">
+				and nickname = #{nickname}
+			</if>
+		</where>
+	</select>
+
+	<insert id="insertPlayer" parameterType="Player"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into player
+		(username,userpwd,nickname,email,phone,regdate)
+		values(
+		#{username},
+		#{userpwd},
+		#{nickname},
+		#{email},
+		#{phone},
+		now()
+		)
+	</insert>
+
+	<update id="updatePlayer" parameterType="Player">
+		update player
+		<set>
+			<if test="phone!=null and phone !=''">
+				phone = #{phone},
+			</if>
+			<if test="email !=null and email !=''">
+				email = #{email},
+			</if>
+			<if test="nickname !=null and nickname !=''">
+				nickname = #{nickname},
+			</if>
+			<if test="username !=null and username !=''">
+				username = #{username},
+			</if>
+			<if test="userpwd !=null and userpwd !=''">
+				userpwd = #{userpwd},
+			</if>
+			<if test="chips !=null">
+				chips = #{chips},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<update id="updatePlayerUserpwd" parameterType="Player">
+		update player set
+		userpwd=#{userpwd}
+		where id =#{id} or
+		phone=#{phone}
+	</update>
+	<select id="selectPlayerPage" parameterType="java.util.Map"
+		resultType="Player">
+		select *
+		from player
+		where 1=1
+		<if test="player.id!=null and player.id!=''">
+			and id = #{player.id}
+		</if>
+		<if test="player.phone!=null and player.phone!=''">
+			and phone = #{player.phone}
+		</if>
+		<if test="player.userpwd!=null and player.userpwd">
+			and password = #{player.password}
+		</if>
+		<if test="player.email !=null and player.email!=''">
+			and email = #{player.email}
+		</if>
+		<if test="player.nickname !=null and player.nickname !=''">
+			and nickname = #{player.nickname}
+		</if>
+		limit #{page.ifrom},#{page.ipageSize}
+	</select>
+	<select id="selectPlayerPageOperator" parameterType="java.util.Map"
+		resultType="Player">
+		select *
+		nickname
+		from player
+		where 1=1
+		<if test="player.id!=null and player.id!=''">
+			and id = #{player.id}
+		</if>
+		<if test="player.phone!=null and player.phone!=''">
+			and phone like #{player.phone}
+		</if>
+		<if test="player.userpwd!=null and player.userpwd !=''">
+			and userpwd = #{player.userpwd}
+		</if>
+		<if test="player.email !=null and player.email !=''">
+			and email = #{player.email}
+		</if>
+		<if test="player.username !=null and player.username !=''">
+			and username = #{player.username}
+		</if>
+		<if test="player.nickname !=null and player.nickname !=''">
+			and nickname = #{player.nickname}
+		</if>
+		limit #{page.ifrom},#{page.ipageSize}
+	</select>
+	<select id="selectLoginPlayer" parameterType="Player" resultType="Player">
+		select *
+		from player
+		where 1=1
+		<if test="id !=null and id!=''">
+			and id = #{id}
+		</if>
+		<if test="phone !=null and phone !=''">
+			and phone = #{phone}
+		</if>
+		<if test="userpwd !=null and userpwd !=''">
+			and userpwd = #{userpwd}
+		</if>
+		<if test="username !=null and username !=''">
+			and username = #{username}
+		</if>
+		<if test="email !=null and email !=''">
+			and eamil = #{email}
+		</if>
+		<if test="nickname !=null and nickname !=''">
+			and nickname = #{nickname}
+		</if>
+	</select>
+	
+</mapper>

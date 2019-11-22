@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="GameLogMapper"><!--缓存key -->
+	<select id="selectGameLog" resultType="GameLog">
+		select * from game_log
+		<where>
+			<if test="id !=null">
+				and id = #{id}
+			</if>
+			<if test="roomLevel !=null">
+				and roomLevel = #{roomLevel}
+			</if>
+			<if test="roomType!=null">
+				and roomType = #{roomType}
+			</if>
+		</where>
+	</select>
+
+	<insert id="insertGameLog" parameterType="GameLog">
+		INSERT INTO game_log 
+		( roomType, roomLevel, dealer, smallBet, bigBet, roundInfo, betpoolInfo, startTime, endTime, 
+		countBetpool, cut, communityCards,playersInitInfo,playersFinalInfo) 
+		VALUES 
+		(#{roomType}, #{roomLevel}, #{dealer}, #{smallBet}, #{bigBet}, #{roundInfo}, #{betpoolInfo}, #{startTime}, #{endTime}, 
+		#{countBetpool}, #{cut}, #{communityCards} ,#{playersInitInfo},#{playersFinalInfo});
+
+	</insert>
+
+</mapper>

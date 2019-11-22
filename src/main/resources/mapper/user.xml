@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="UserMapper"><!--缓存key -->
+	<select id="selectUser" parameterType="UserEntity" resultType="UserEntity">
+		select *
+		from user
+		where 1=1
+		<if test="id !=null">
+			and id = #{id}
+		</if>
+		<if test="phone!=null">
+			and phone like #{phone}
+		</if>
+		<if test="status !=null">
+			and status = #{status}
+		</if>
+		<if test="usertype !=null">
+			and usertype = #{usertype}
+		</if>
+	</select>
+	<select id="selectUserCount" parameterType="UserEntity"
+		resultType="String">
+		select count(1)
+		from user where 1=1
+		<if test="id!=null">
+			and id = #{id}
+		</if>
+		<if test="phone!=null">
+			and phone like #{phone}
+		</if>
+		<if test="password!=null">
+			and password = #{password}
+		</if>
+		<if test="status !=null">
+			and status = #{status}
+		</if>
+		<if test="usertype !=null">
+			and usertype = #{usertype}
+		</if>
+	</select>
+
+	<insert id="insertUser" parameterType="UserEntity"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into user
+		(name,phone,
+		password,
+		email,
+		oauthid,
+		logintype,
+		status,
+		regdate,
+		pic,
+		usertype,
+		picurl,
+		isopenhere,
+		viplevel,
+		score,
+		description,
+		cardtype,
+		cardid,
+		realname)
+		values(#{name},
+		#{phone},
+		#{password},
+		#{email},
+		#{oauthid},
+		#{logintype},
+		#{status},
+		now(),
+		#{pic},
+		#{usertype},
+		#{picurl},
+		#{isopenhere},
+		#{viplevel},
+		#{score},
+		#{description},
+		#{cardtype},
+		#{cardid},
+		#{realname}
+		)
+	</insert>
+
+	<update id="updateUser" parameterType="UserEntity">
+		update user
+		<set>
+			<if test="phone != null">
+				phone =#{phone},
+			</if>
+			<if test="name != null">
+				name =#{name},
+			</if>
+			<if test="email != null">
+				email = #{email},
+			</if>
+			<if test="pic != null">
+				pic = #{pic},
+			</if>
+			<if test="isopenhere != null">
+				isopenhere = #{isopenhere},
+			</if>
+			<if test="viplevel != null">
+				viplevel = #{viplevel},
+			</if>
+			<if test="score != null">
+				score = #{score},
+			</if>
+			<if test="description != null">
+				description = #{description},
+			</if>
+			<if test="usertype != null">
+				usertype = #{usertype},
+			</if>
+			<if test="cardtype != null">
+				cardtype = #{cardtype},
+			</if>
+			<if test="cardid != null">
+				cardid = #{cardid},
+			</if>
+			<if test="realname != null">
+				realname = #{realname},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<update id="updateUserState" parameterType="UserEntity">
+		update user set
+		status=#{status}
+		where
+		id=#{id}
+	</update>
+
+	<update id="updateUserPassword" parameterType="UserEntity">
+		update user set
+		password=#{password}
+		where id =#{id} or
+		phone=#{phone}
+	</update>
+	<select id="selectUserPage" parameterType="java.util.Map"
+		resultType="UserEntity">
+		select *
+		from user
+		where 1=1
+		<if test="user.id!=null">
+			and id = #{user.id}
+		</if>
+		<if test="user.phone!=null">
+			and phone like #{user.phone}
+		</if>
+		<if test="user.password!=null">
+			and password = #{user.password}
+		</if>
+		<if test="user.status !=null">
+			and status = #{user.status}
+		</if>
+		<if test="user.usertype !=null">
+			and usertype = #{user.usertype}
+		</if>
+		limit #{page.ifrom},#{page.ipageSize}
+	</select>
+	<select id="selectUserPageOperator" parameterType="java.util.Map"
+		resultType="UserEntity">
+		select *
+		realname
+		from user
+		where 1=1
+		<if test="user.id!=null">
+			and id = #{user.id}
+		</if>
+		<if test="user.phone!=null">
+			and phone like #{user.phone}
+		</if>
+		<if test="user.password!=null">
+			and password = #{user.password}
+		</if>
+		<if test="user.status !=null">
+			and status = #{user.status}
+		</if>
+		<if test="user.usertype !=null">
+			and usertype = #{user.usertype}
+		</if>
+		limit #{page.ifrom},#{page.ipageSize}
+	</select>
+	<select id="selectLoginUser" parameterType="UserEntity"
+		resultType="UserEntity">
+		select *
+		from user
+		where 1=1
+		<if test="oauthid !=null">
+			and oauthid = #{oauthid}
+		</if>
+		<if test="id !=null">
+			and id = #{id}
+		</if>
+		<if test="phone !=null">
+			and phone = #{phone} and password = #{password}
+		</if>
+		<if test="status !=null">
+			and status = #{status}
+		</if>
+		<if test="usertype !=null">
+			and usertype = #{usertype}
+		</if>
+	</select>
+	<select id="checkAccountAndMobile" parameterType="UserEntity"
+		resultType="UserEntity">
+		select * from user
+		<where>
+			<if test="phone != null">
+				phone =#{phone}
+			</if>
+		</where>
+	</select>
+</mapper>

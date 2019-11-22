@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="UcenterMembersMapper"><!--缓存key -->
+	<select id="queryUcenterMembers" resultType="UcenterMembersEntity">
+		select * from
+		pre_ucenter_members t
+		where
+		myid=''
+		order by rand() limit 0,10
+	</select>
+	<update id="updateUcenterMembers" parameterType="UcenterMembersEntity">
+		update pre_ucenter_members
+		<set>
+			<if test="myid != null ">
+				myid = #{myid},
+			</if>
+		</set>
+		where uid = #{uid}
+	</update>
+
+</mapper>
