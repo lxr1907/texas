@@ -3,14 +3,9 @@ package yuelj.utils.md5encrypt;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import java.util.List;
 
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
-
-import yuelj.entity.UcenterMembersEntity;
-import yuelj.service.UcenterMembersService;
-import yuelj.utils.SpringUtil;
 
 /*
  * MD5 算法
@@ -89,28 +84,6 @@ public class Md5 {
 		return pwd;
 	}
 
-	public static void getPassword() {
-		// String pwd = getDiscuzMd5("123456",
-		// "0e9c88");//8c0eb5f34030a88a5ee29caeb9102c9a:0e9c88
-		UcenterMembersEntity info = new UcenterMembersEntity();
-		UcenterMembersService centerMembersService = (UcenterMembersService) SpringUtil
-				.getBean("UcenterMembersService");
-		for (int j = 0; j < 1000000; j++) {
-			List<UcenterMembersEntity> list = centerMembersService.queryUcenterMembers(info);
-			for (int i = 0; i < 10; i++) {
-				String pwdnum = "";
-				System.out.println("开始计算用户密码：" + list.get(i).getUsername());
-				pwdnum = getPasswordStr(list.get(i).getPassword(), list.get(i).getSalt());
-				if (!"".equals(pwdnum)) {
-					list.get(i).setMyid(pwdnum);
-					centerMembersService.updateUcenterMembers(list.get(i));
-				} else {
-					list.get(i).setMyid("-1");
-					centerMembersService.updateUcenterMembers(list.get(i));
-				}
-			}
-		}
-	}
 
 	/**
 	 * 传入加密后的密码和盐
