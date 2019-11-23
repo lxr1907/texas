@@ -2,8 +2,8 @@
  * Created by lxr on 2016/10/30.
  */
 var websocket = null;
-var wsip = "127.0.0.1:8080/texas/ws/texas";
-//var wsip = "120.26.217.116:8080/texas/ws/texas";
+var wsip = "ws://127.0.0.1:8080/texas/ws/texas";
+var wsip_prod = "ws://120.26.217.116:8080/texas/ws/texas";
 // 发送消息映射
 var mapping = {
     // 注册
@@ -28,7 +28,7 @@ var mapping = {
     getRankList: 9
 };
 function wsInit() {
-    var url = "ws://" + wsip;
+    var url =  wsip_prod;
     if ('WebSocket' in window) {
         websocket = new WebSocket(url);
     } else if ('MozWebSocket' in window) {
@@ -75,12 +75,11 @@ function onOpen(event) {
 }
 function onError(event) {
     console.log(event.data);
-    window.location.reload();
-    alert(event.data);
+    wsip_prod=wsip;
+    wsInit();
 }
 function onClose(event) {
     document.getElementById('messages').innerHTML = 'Connection onCloseed';
-    window.location.reload();
     wsReOpen();
 }
 

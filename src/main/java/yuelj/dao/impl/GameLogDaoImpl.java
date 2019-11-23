@@ -5,10 +5,19 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import yuelj.dao.BaseDao;
 import yuelj.dao.GameLogDao;
+import yuelj.dao.base.BaseDao;
 import yuelj.entity.GameLog;
 
+import java.util.List;
+
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Repository;
+
+import yuelj.dao.SystemLogDao;
+import yuelj.dao.base.BaseDao;
+import yuelj.entity.SystemLogEntity;
+@Primary
 @Repository
 public class GameLogDaoImpl extends BaseDao implements GameLogDao {
 

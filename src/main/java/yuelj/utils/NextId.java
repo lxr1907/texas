@@ -6,7 +6,7 @@ import java.util.Random;
 
 import org.springframework.stereotype.Repository;
 
-import yuelj.dao.BaseDao;
+import yuelj.dao.base.BaseDao;
 import yuelj.entity.NextIdEntity;
 
 @Repository("NextIdDao")

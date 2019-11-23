@@ -1,4 +1,4 @@
-package yuelj.dao;
+package yuelj.dao.base;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +12,8 @@ import yuelj.entity.BaseEntity;
 import yuelj.utils.cache.MemCacheOcsUtils;
 import yuelj.utils.serialize.JsonUtils;
 
-
 public class BaseDao extends SqlSessionDaoSupport {
-	 @Autowired
+	@Autowired
 	public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
 		super.setSqlSessionFactory(sqlSessionFactory);
 	}

@@ -16,5 +16,6 @@ public interface PlayerDao {
 
 	public void updatePlayerPassword(Player player);
 	public List<Player> selectPlayersPage(Player player, PageEntity page);
+	void updatePlayerCache(Player player);
 	
 }

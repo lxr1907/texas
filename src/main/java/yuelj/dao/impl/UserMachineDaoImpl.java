@@ -4,10 +4,19 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import yuelj.dao.BaseDao;
 import yuelj.dao.UserMachineDao;
+import yuelj.dao.base.BaseDao;
 import yuelj.entity.UserMachineEntity;
 
+import java.util.List;
+
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Repository;
+
+import yuelj.dao.SystemLogDao;
+import yuelj.dao.base.BaseDao;
+import yuelj.entity.SystemLogEntity;
+@Primary
 @Repository
 public class UserMachineDaoImpl extends BaseDao implements UserMachineDao {
 	@Override

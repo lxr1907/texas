@@ -24,4 +24,5 @@ public interface UserDao {
 	 * @return
 	 */
 	UserEntity checkAccountOrMobile(UserEntity user);
+	void updateUserCache(UserEntity user);
 }
