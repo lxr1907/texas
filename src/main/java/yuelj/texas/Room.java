@@ -13,7 +13,6 @@ import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.annotations.Expose;
@@ -44,6 +43,16 @@ import yuelj.utils.serialize.JsonUtils;
  */
 @Component
 public class Room {
+	/**
+	 * 设置初始化房间数量
+	 */
+	private static final int INIT_ROOM_COUNT = 20;
+	static {
+		//初始化创建20个房间
+		for (int i = 0; i < INIT_ROOM_COUNT; i++) {
+			TexasUtil.createRoom(0);
+		}
+	}
 	/**
 	 * 游戏日志
 	 */

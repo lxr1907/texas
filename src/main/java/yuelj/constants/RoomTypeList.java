@@ -17,9 +17,9 @@ public class RoomTypeList {
 	public static Map<Integer, Room> roomTypeMap = new HashMap<Integer, Room>();
 	public static Map<Integer, ThreeCardRoom> threeCardRoomTypeMap = new HashMap<Integer, ThreeCardRoom>();
 	static {
-		roomTypeMap.put(0, getRoom(0));
-		roomTypeMap.put(1, getRoom(1));
-		roomTypeMap.put(2, getRoom(2));
+		roomTypeMap.put(0, getNewRoom(0));
+		roomTypeMap.put(1, getNewRoom(1));
+		roomTypeMap.put(2, getNewRoom(2));
 		threeCardRoomTypeMap.put(0, getThreeCardRoom(0));
 		threeCardRoomTypeMap.put(1, getThreeCardRoom(1));
 		threeCardRoomTypeMap.put(2, getThreeCardRoom(2));
@@ -31,7 +31,7 @@ public class RoomTypeList {
 	 * @param level
 	 * @return
 	 */
-	public static Room getRoom(int level) {
+	public static Room getNewRoom(int level) {
 		Room room = new Room();
 		int jMaxPlayer = 6;
 		room.setMaxPlayers(6);

@@ -94,7 +94,6 @@ public class TexasUtil {
 	public static Room createRoomThenIn(int level, Player player) {
 		Room newRoom = createRoom(level);
 		inRoom(newRoom, player);
-		TexasStatic.roomList.add(newRoom);
 		return newRoom;
 	}
 
@@ -107,7 +106,6 @@ public class TexasUtil {
 		} else {
 			Room newRoom = createRoom(level);
 			inRoom(newRoom, player);
-			TexasStatic.roomList.add(newRoom);
 			return newRoom;
 		}
 	}
@@ -292,7 +290,7 @@ public class TexasUtil {
 	 * @param level
 	 */
 	public static Room createRoom(int level) {
-		Room room = RoomTypeList.getRoom(level);
+		Room room = RoomTypeList.getNewRoom(level);
 		TexasStatic.roomList.add(room);
 		return room;
 	}
@@ -650,7 +648,7 @@ public class TexasUtil {
 		if (!currPlayer.getUsername().contains("robot")) {
 			Date now = new Date();
 			//// 创建2机器人
-			RobotManager.init(2);
+			RobotManager.init(200);
 			Date costEnd = new Date();
 			long cost = costEnd.getTime() - now.getTime();
 			if (cost > 100) {

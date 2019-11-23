@@ -3,8 +3,6 @@ package yuelj.utils;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,7 +10,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -27,7 +24,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import yuelj.utils.imgdetect.ImageHelper;
 import yuelj.utils.logs.SystemLog;
 
 public final class HttpTool {
@@ -414,55 +410,6 @@ public final class HttpTool {
 	public static int getIntResponse(String link) {
 		String str = doGet(link);
 		return Integer.parseInt(str.trim());
-
-	}
-
-	/**
-	 * 下载网络文件
-	 * 
-	 * @param urlStr
-	 * @param id
-	 * @return
-	 */
-	public static File downloadNet(String urlStr, String id) {
-		try {
-			// 下载网络文件
-			int byteread = 0;
-			URL url = new URL(urlStr);
-			URLConnection conn = url.openConnection();
-			InputStream inStream = conn.getInputStream();
-			File f = new File("./downimages/" + id);
-			if (!f.exists()) {
-				if (!f.getParentFile().exists()) {
-					// 如果目标文件所在的目录不存在，则创建父目录
-					f.getParentFile().mkdirs();
-				}
-
-				f.createNewFile();
-			}
-			FileOutputStream fs = new FileOutputStream(f);
-
-			byte[] buffer = new byte[8204];
-			while ((byteread = inStream.read(buffer)) != -1) {
-				fs.write(buffer, 0, byteread);
-			}
-			fs.close();
-
-			File cf = new File("./downimagesJpg/" + id);
-			if (!cf.exists()) {
-				if (!cf.getParentFile().exists()) {
-					// 如果目标文件所在的目录不存在，则创建父目录
-					cf.getParentFile().mkdirs();
-				}
-				cf.createNewFile();
-			}
-			ImageHelper.convert("./downimages/" + id, "jpg", "./downimagesJpg/" + id);
-			//ImageHelper.scaleImageWithParams(cf, UserAction.userPicWidth, UserAction.userPicHeight, true, "jpg");
-			return cf;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
 
 	}
 
