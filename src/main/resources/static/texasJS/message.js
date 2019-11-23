@@ -71,11 +71,13 @@ function onMessage(event) {
  * 建立连接
  */
 function onOpen(event) {
-    document.getElementById('messages').innerHTML = 'Connection established';
+    document.getElementById('messages').innerHTML = '连接成功'+wsip;
 }
 function onError(event) {
     console.log(event.data);
+    //无法连接正式服就切换为本地
     wsip_prod=wsip;
+    document.getElementById('messages').innerHTML = '连接失败，切换到'+wsip+'......';
     wsInit();
 }
 function onClose(event) {
