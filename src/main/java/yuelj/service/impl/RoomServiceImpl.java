@@ -2,6 +2,7 @@ package yuelj.service.impl;
 
 import javax.websocket.Session;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import yuelj.service.RoomService;
@@ -10,7 +11,7 @@ import yuelj.texas.threeCard.ThreeCardsUtil;
 
 @Service("roomService")
 public class RoomServiceImpl implements RoomService {
-
+	
 	@Override
 	public void inRoom(Session session, String message) {
 		TexasUtil.inRoom(session, message);

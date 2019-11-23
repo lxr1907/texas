@@ -1,7 +1,6 @@
 package yuelj.texas;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -14,7 +13,8 @@ import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.google.gson.annotations.Expose;
 
 import yuelj.cardUtils.CardGroup;
@@ -26,7 +26,6 @@ import yuelj.entity.PlayerOpt;
 import yuelj.entity.PrivateRoom;
 import yuelj.entity.RetMsg;
 import yuelj.entity.SystemLogEntity;
-import yuelj.service.GameLogService;
 import yuelj.service.PlayerService;
 import yuelj.service.SystemLogService;
 import yuelj.service.impl.LobbyServiceImpl;
@@ -41,13 +40,19 @@ import yuelj.utils.serialize.JsonUtils;
  * @author Ming
  *
  */
-public class Room extends TexasUtil {
+public class Room {
 	/**
 	 * 游戏日志
 	 */
+	@Autowired
 	protected GameLog gameLog;
 
 	protected List<PlayerOpt> opts;
+	/**
+	 * 房间id
+	 */
+	@Expose
+	private int id;
 	/**
 	 * 房间级别
 	 */
@@ -229,7 +234,7 @@ public class Room extends TexasUtil {
 				}
 			}
 			// 总筹码不足的不能进行游戏，踢出房间
-			getWaitPlayers().parallelStream().filter(p -> p.getBodyChips() <= 0).forEach(p -> outRoom(p));
+			getWaitPlayers().parallelStream().filter(p -> p.getBodyChips() <= 0).forEach(p -> TexasUtil.outRoom(p));
 			// 转移等待列表的玩家进入游戏中玩家列表
 			TexasUtil.movePlayers(this.getWaitPlayers(), this.getIngamePlayers());
 			// 记录玩家座位号
@@ -237,7 +242,7 @@ public class Room extends TexasUtil {
 				p.setFold(false);// 设定为未弃牌
 			}
 			// 更新下一个dealer
-			updateNextDealer(this);
+			TexasUtil.updateNextDealer(this);
 			// 得到一副洗好的牌（随机卡组）
 			this.setCardList(CardGroup.getRandomCards());
 			// 确定大小盲主，并分配筹码到奖池
@@ -287,19 +292,19 @@ public class Room extends TexasUtil {
 				retMsg.setC("onGameStart");
 				retMsg.setState(1);
 				retMsg.setMessage(msg);
-				sendMsgToOne(p, JsonUtils.toJson(retMsg, RetMsg.class));
+				TexasUtil.sendMsgToOne(p, JsonUtils.toJson(retMsg, RetMsg.class));
 			}
 			startTimer(this);// 开始计时
-//			// 游戏日志
-//			this.gameLog = new GameLog();
-//			this.gameLog.setStartTime(DateUtil.nowDatetime());
-//			String initInfo = JsonUtils.toJson(this.getIngamePlayers(), this.getIngamePlayers().getClass());
-//			this.gameLog.setPlayersInitInfo(initInfo);
-//			this.gameLog.setRoomLevel(this.getLevel());
-//			this.gameLog.setRoomType("普通场");// XXX 暂定
-//			this.gameLog.setBigBet(JsonUtils.toJson(bigBetPlayer, Player.class));
-//			this.gameLog.setSmallBet(JsonUtils.toJson(smallBetPlayer, Player.class));
-//			this.gameLog.setDealer(JsonUtils.toJson(getPlayerBySeatNum(dealer, this.getIngamePlayers()), Player.class));
+			// 游戏日志
+			this.gameLog.setStartTime(DateUtil.nowDatetime());
+			String initInfo = JsonUtils.toJson(this.getIngamePlayers(), this.getIngamePlayers().getClass());
+			this.gameLog.setPlayersInitInfo(initInfo);
+			this.gameLog.setRoomLevel(this.getLevel());
+			this.gameLog.setRoomType("普通场");//
+			this.gameLog.setBigBet(JsonUtils.toJson(bigBetPlayer, Player.class));
+			this.gameLog.setSmallBet(JsonUtils.toJson(smallBetPlayer, Player.class));
+			this.gameLog.setDealer(
+					JsonUtils.toJson(TexasUtil.getPlayerBySeatNum(dealer, this.getIngamePlayers()), Player.class));
 
 		}
 	}
@@ -383,7 +388,7 @@ public class Room extends TexasUtil {
 					win = (Long) (betpool.getBetSum() / winPlayerList.size());
 				}
 				for (Player p : winPlayerList) {
-					changePlayerChips(p, win);
+					TexasUtil.changePlayerChips(p, win);
 					// 在上个分池中已经赢的筹码，需要合并计算，加入winPlayersMap
 					Long lastPoolWin = winPlayersMap.get(p.getSeatNum());
 					if (lastPoolWin != null) {
@@ -391,8 +396,8 @@ public class Room extends TexasUtil {
 					}
 					winPlayersMap.put(p.getSeatNum(), win);
 					LobbyServiceImpl.updateRankList(p);
-					SystemLog.printlog("winPlayersMap.put :" + p.getSeatNum() + " thisPoolWin:" + win + "poolplayerssize:"
-							+ betpool.getBetPlayerList().size());
+					SystemLog.printlog("winPlayersMap.put :" + p.getSeatNum() + " thisPoolWin:" + win
+							+ "poolplayerssize:" + betpool.getBetPlayerList().size());
 				}
 			}
 
@@ -402,7 +407,7 @@ public class Room extends TexasUtil {
 			retMsg.setC("onGameEnd");
 			retMsg.setState(1);
 			retMsg.setMessage(msg);
-			sendMsgToPlayerByRoom(this, JsonUtils.toJson(retMsg, RetMsg.class));
+			TexasUtil.sendMsgToPlayerByRoom(this, JsonUtils.toJson(retMsg, RetMsg.class));
 			// 清除本局状态信息
 			betMap.clear();
 			// 清除betRoundMap
@@ -422,7 +427,7 @@ public class Room extends TexasUtil {
 			// 清除牌堆
 			cardList.clear();
 			// 将玩家都移入等待列表
-			movePlayers(getIngamePlayers(), getWaitPlayers());
+			TexasUtil.movePlayers(getIngamePlayers(), getWaitPlayers());
 
 			// 更新玩家筹码数到数据库
 			PlayerService pservice = (PlayerService) SpringUtil.getBean("playerService");
@@ -458,10 +463,9 @@ public class Room extends TexasUtil {
 	 * @param betMap
 	 * @param ingamePlayers
 	 */
-	public static void sumBetPoolList(List<BetPool> betPoolList, Map<Integer, Long> betMap,
-			List<Player> ingamePlayers) {
+	public void sumBetPoolList(List<BetPool> betPoolList, Map<Integer, Long> betMap, List<Player> ingamePlayers) {
 		// 对map按照值排序
-		betMap = sortMapByValue(betMap);
+		betMap = TexasUtil.sortMapByValue(betMap);
 		boolean complete = false;
 		while (!complete) {
 			complete = true;
@@ -484,7 +488,7 @@ public class Room extends TexasUtil {
 					// 减去本轮分池单个金额
 					e.setValue(e.getValue() - thisBet);
 					// 加入betpool
-					Player p = getPlayerBySeatNum(e.getKey(), ingamePlayers);
+					Player p = TexasUtil.getPlayerBySeatNum(e.getKey(), ingamePlayers);
 					if (p != null) {
 						pool.getBetPlayerList().add(p);
 					}
@@ -504,8 +508,7 @@ public class Room extends TexasUtil {
 	 * @param finalCardsMap
 	 * @return
 	 */
-	public static List<Player> compareCardsToWinList(List<Player> poolPlayers,
-			Map<Integer, List<Integer>> finalCardsMap) {
+	public List<Player> compareCardsToWinList(List<Player> poolPlayers, Map<Integer, List<Integer>> finalCardsMap) {
 		List<Player> winPlayerList = new ArrayList<>();
 		List<Integer> listold = null;
 		if (finalCardsMap.size() == 0) {
@@ -531,7 +534,7 @@ public class Room extends TexasUtil {
 				listold = e.getValue();
 				SystemLog.printlog("getPlayerBySeatNum begin seatNum:" + e.getKey() + " poolPlayers:"
 						+ JsonUtils.toJson(poolPlayers, poolPlayers.getClass()));
-				Player wp = getPlayerBySeatNum(e.getKey(), poolPlayers);
+				Player wp = TexasUtil.getPlayerBySeatNum(e.getKey(), poolPlayers);
 				if (wp != null) {
 					winPlayerList.add(wp);
 				} else {
@@ -547,10 +550,10 @@ public class Room extends TexasUtil {
 				SystemLog.printlog("compareCardsToWinList CardUtil.compareValue result:" + result);
 				if (result == 1) {
 					winPlayerList.clear();
-					winPlayerList.add(getPlayerBySeatNum(e.getKey(), poolPlayers));
+					winPlayerList.add(TexasUtil.getPlayerBySeatNum(e.getKey(), poolPlayers));
 					listold = listNew;
 				} else if (result == 0) {
-					winPlayerList.add(getPlayerBySeatNum(e.getKey(), poolPlayers));
+					winPlayerList.add(TexasUtil.getPlayerBySeatNum(e.getKey(), poolPlayers));
 				}
 			}
 		}
@@ -656,9 +659,9 @@ public class Room extends TexasUtil {
 			retMsg.setC("onPlayerFold");
 			retMsg.setState(1);
 			retMsg.setMessage(msg);
-			sendMsgToPlayerByRoom(this, JsonUtils.toJson(retMsg, RetMsg.class));
+			TexasUtil.sendMsgToPlayerByRoom(this, JsonUtils.toJson(retMsg, RetMsg.class));
 			// 将玩家移动到等待列表
-			removeIngamePlayer(player);
+			TexasUtil.removeIngamePlayer(player);
 			int index = donePlayerList.indexOf(player.getSeatNum());
 			// 玩家在donePlayerList，则移除
 			if (index != -1) {
@@ -688,7 +691,7 @@ public class Room extends TexasUtil {
 		boolean roundEnd = checkRoundEnd();
 		if (!roundEnd) {
 			// 更新nextturn
-			updateNextTurn(this);
+			TexasUtil.updateNextTurn(this);
 			// 发送轮到某玩家操作的消息
 			sendNextTurnMessage();
 		}
@@ -725,7 +728,7 @@ public class Room extends TexasUtil {
 			retMsg.setC("onPlayerCheck");
 			retMsg.setState(1);
 			retMsg.setMessage(msg);
-			sendMsgToPlayerByRoom(this, JsonUtils.toJson(retMsg, RetMsg.class));
+			TexasUtil.sendMsgToPlayerByRoom(this, JsonUtils.toJson(retMsg, RetMsg.class));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -833,7 +836,7 @@ public class Room extends TexasUtil {
 				retMsg.setMessage(message);
 				String msg = JsonUtils.toJson(retMsg, RetMsg.class);
 				// 通知房间中玩家有人下注了
-				sendMsgToPlayerByRoom(thisRoom, msg);
+				TexasUtil.sendMsgToPlayerByRoom(thisRoom, msg);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -901,7 +904,7 @@ public class Room extends TexasUtil {
 		}
 
 		// 如果下一个可以操作的玩家无法更新，游戏结束
-		int turn = getNextSeatNum(nextturn, this);
+		int turn = TexasUtil.getNextSeatNum(nextturn, this);
 		if (turn == nextturn) {
 			canEndRound = true;
 		}
@@ -1001,7 +1004,7 @@ public class Room extends TexasUtil {
 		String msg = JsonUtils.toJson(retMsg, RetMsg.class);
 		// 轮到下一家操作，并开始计时
 		startTimer(this);
-		sendMsgToPlayerByRoom(this, msg);
+		TexasUtil.sendMsgToPlayerByRoom(this, msg);
 	}
 
 	/**
@@ -1252,56 +1255,56 @@ public class Room extends TexasUtil {
 		this.type = type;
 	}
 
-	public static void main(String[] args) {
-		testSumBetPool();
-		// testCompareCardsToWinList();
-	}
-
-	public static void testSumBetPool() {
-		// 奖池列表
-		List<BetPool> betPoolList = new ArrayList<BetPool>();
-		Map<Integer, Long> betMap = new LinkedHashMap<>();
-		List<Player> ingamePlayers = new ArrayList<Player>();
-		for (int i = 0; i < 10; i++) {
-			Player p = new Player();
-			p.setSeatNum(i);
-			betMap.put(i, 100l);
-			if (i < 3) {
-				betMap.put(i, 2000l + i * 100);
-			} else {
-				betMap.put(i, 200l + i * 10);
-			}
-			ingamePlayers.add(p);
-		}
-		sumBetPoolList(betPoolList, betMap, ingamePlayers);
-		SystemLog.printlog(JsonUtils.toJson(betMap, betMap.getClass()));
-		for (BetPool pool : betPoolList) {
-			SystemLog.printlog("pool:" + pool.getBetSum());
-			SystemLog.printlog("size:" + pool.getBetPlayerList().size());
-			SystemLog.printlog(JsonUtils.toJson(pool.getBetPlayerList(), pool.getBetPlayerList().getClass()));
-		}
-		SystemLog.printlog("poolSize:" + betPoolList.size());
-	}
-
-	public static void testCompareCardsToWinList() {
-		List<Player> poolPlayers = new ArrayList<>();
-		Map<Integer, List<Integer>> finalCardsMap = new HashMap<Integer, List<Integer>>();
-
-		poolPlayers.add(null);
-		for (int i = 1; i < 6; i++) {
-			Player p = new Player();
-			p.setSeatNum(i);
-			p.setFold(false);
-			poolPlayers.add(p);
-		}
-		finalCardsMap.put(1, new ArrayList<Integer>(Arrays.asList(24, 28, 39, 40, 51, 1)));
-		finalCardsMap.put(2, new ArrayList<Integer>(Arrays.asList(36, 39, 28, 40, 51, 2)));
-		finalCardsMap.put(3, new ArrayList<Integer>(Arrays.asList(40, 39, 32, 28, 26, 5)));
-		finalCardsMap.put(4, new ArrayList<Integer>(Arrays.asList(50, 51, 40, 41, 39, 3)));
-		finalCardsMap.put(5, new ArrayList<Integer>(Arrays.asList(12, 14, 39, 40, 51, 2)));
-		// "finalCardsMap\":{\"1\":,\"2\":[],\"3\":[],\"4\":[],\"5\":[]}
-		List<Player> winPlayerList = compareCardsToWinList(poolPlayers, finalCardsMap);
-		SystemLog.printlog(JsonUtils.toJson(poolPlayers, poolPlayers.getClass()));
-		SystemLog.printlog(JsonUtils.toJson(winPlayerList, winPlayerList.getClass()));
-	}
+//	public static void main(String[] args) {
+//		testSumBetPool();
+//		// testCompareCardsToWinList();
+//	}
+//
+//	public static void testSumBetPool() {
+//		// 奖池列表
+//		List<BetPool> betPoolList = new ArrayList<BetPool>();
+//		Map<Integer, Long> betMap = new LinkedHashMap<>();
+//		List<Player> ingamePlayers = new ArrayList<Player>();
+//		for (int i = 0; i < 10; i++) {
+//			Player p = new Player();
+//			p.setSeatNum(i);
+//			betMap.put(i, 100l);
+//			if (i < 3) {
+//				betMap.put(i, 2000l + i * 100);
+//			} else {
+//				betMap.put(i, 200l + i * 10);
+//			}
+//			ingamePlayers.add(p);
+//		}
+//		sumBetPoolList(betPoolList, betMap, ingamePlayers);
+//		SystemLog.printlog(JsonUtils.toJson(betMap, betMap.getClass()));
+//		for (BetPool pool : betPoolList) {
+//			SystemLog.printlog("pool:" + pool.getBetSum());
+//			SystemLog.printlog("size:" + pool.getBetPlayerList().size());
+//			SystemLog.printlog(JsonUtils.toJson(pool.getBetPlayerList(), pool.getBetPlayerList().getClass()));
+//		}
+//		SystemLog.printlog("poolSize:" + betPoolList.size());
+//	}
+//
+//	public static void testCompareCardsToWinList() {
+//		List<Player> poolPlayers = new ArrayList<>();
+//		Map<Integer, List<Integer>> finalCardsMap = new HashMap<Integer, List<Integer>>();
+//
+//		poolPlayers.add(null);
+//		for (int i = 1; i < 6; i++) {
+//			Player p = new Player();
+//			p.setSeatNum(i);
+//			p.setFold(false);
+//			poolPlayers.add(p);
+//		}
+//		finalCardsMap.put(1, new ArrayList<Integer>(Arrays.asList(24, 28, 39, 40, 51, 1)));
+//		finalCardsMap.put(2, new ArrayList<Integer>(Arrays.asList(36, 39, 28, 40, 51, 2)));
+//		finalCardsMap.put(3, new ArrayList<Integer>(Arrays.asList(40, 39, 32, 28, 26, 5)));
+//		finalCardsMap.put(4, new ArrayList<Integer>(Arrays.asList(50, 51, 40, 41, 39, 3)));
+//		finalCardsMap.put(5, new ArrayList<Integer>(Arrays.asList(12, 14, 39, 40, 51, 2)));
+//		// "finalCardsMap\":{\"1\":,\"2\":[],\"3\":[],\"4\":[],\"5\":[]}
+//		List<Player> winPlayerList = compareCardsToWinList(poolPlayers, finalCardsMap);
+//		SystemLog.printlog(JsonUtils.toJson(poolPlayers, poolPlayers.getClass()));
+//		SystemLog.printlog(JsonUtils.toJson(winPlayerList, winPlayerList.getClass()));
+//	}
 }

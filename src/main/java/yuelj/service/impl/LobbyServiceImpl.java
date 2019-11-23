@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.websocket.Session;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import yuelj.entity.Player;
@@ -52,7 +53,7 @@ public class LobbyServiceImpl implements LobbyService {
 	 * @param p
 	 */
 	public static void updateRankList(Player p) {
-		//机器人不加入排行榜
+		// 机器人不加入排行榜
 		if (p.getUsername().contains("robot")) {
 			return;
 		}

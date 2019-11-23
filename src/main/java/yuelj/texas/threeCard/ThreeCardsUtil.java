@@ -21,6 +21,7 @@ import yuelj.utils.serialize.JsonUtils;
  *
  */
 public class ThreeCardsUtil {
+
 	/**
 	 * 看自己的手牌
 	 * 
@@ -111,10 +112,10 @@ public class ThreeCardsUtil {
 	public static void assignHandPokerByRoom(Room room) {
 		List<Integer> cardList = room.getCardList();
 		for (Player p : room.getIngamePlayers()) {
-			List<Integer> pCards=cardList.subList(0, 3);
-			pCards=ThreeCardCompareUtil.getCardsGroupType(pCards);
-			//三张牌和牌型
-			int[] hankPoker = { pCards.get(0), pCards.get(1), pCards.get(2), pCards.get(3)};
+			List<Integer> pCards = cardList.subList(0, 3);
+			pCards = ThreeCardCompareUtil.getCardsGroupType(pCards);
+			// 三张牌和牌型
+			int[] hankPoker = { pCards.get(0), pCards.get(1), pCards.get(2), pCards.get(3) };
 			cardList.remove(0);
 			cardList.remove(0);
 			cardList.remove(0);

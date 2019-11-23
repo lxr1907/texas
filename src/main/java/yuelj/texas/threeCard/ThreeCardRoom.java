@@ -123,7 +123,7 @@ public class ThreeCardRoom extends Room {
 				retMsg.setC("onGameStart");
 				retMsg.setState(1);
 				retMsg.setMessage(msg);
-				sendMsgToOne(p, JsonUtils.toJson(retMsg, RetMsg.class));
+				TexasUtil.sendMsgToOne(p, JsonUtils.toJson(retMsg, RetMsg.class));
 			}
 			startTimer(this);// 开始计时
 			// 游戏日志
@@ -144,7 +144,7 @@ public class ThreeCardRoom extends Room {
 			this.gameLog.setPlayersInitInfo(initInfo);
 			this.gameLog.setRoomLevel(this.getLevel());
 			this.gameLog.setRoomType("拼三张普通场");
-			this.gameLog.setDealer(JsonUtils.toJson(getPlayerBySeatNum(dealer, this.getIngamePlayers()), Player.class));
+			this.gameLog.setDealer(JsonUtils.toJson(TexasUtil.getPlayerBySeatNum(dealer, this.getIngamePlayers()), Player.class));
 		}
 	}
 
@@ -247,7 +247,7 @@ public class ThreeCardRoom extends Room {
 			retMsg.setMessage(message);
 			String msg = JsonUtils.toJson(retMsg, RetMsg.class);
 			// 通知房间中玩家有人下注了
-			sendMsgToPlayerByRoom(thisRoom, msg);
+			TexasUtil.sendMsgToPlayerByRoom(thisRoom, msg);
 			// 判断下一步是否round结束，endgame或下个玩家操作nextturn
 			endRoundOrNextTurn();
 		}
@@ -344,7 +344,7 @@ public class ThreeCardRoom extends Room {
 		retMsg.setMessage(message);
 		String msg = JsonUtils.toJson(retMsg, RetMsg.class);
 		// 通知房间中玩家有人下注了
-		sendMsgToPlayerByRoom(thisRoom, msg);
+		TexasUtil.sendMsgToPlayerByRoom(thisRoom, msg);
 		// 下注次数加一
 		player.setBetTimes(player.getBetTimes() + 1);
 		return true;
@@ -358,7 +358,7 @@ public class ThreeCardRoom extends Room {
 		boolean roundEnd = checkRoundEnd();
 		if (!roundEnd) {
 			// 更新nextturn
-			updateNextTurn(this, false);
+			TexasUtil.updateNextTurn(this, false);
 			// 发送轮到某玩家操作的消息
 			sendNextTurnMessage();
 		}
@@ -378,7 +378,7 @@ public class ThreeCardRoom extends Room {
 			return true;
 		}
 		// 如果下一个可以操作的玩家无法更新，游戏结束
-		int turn = getNextSeatNum(nextturn, this, false);
+		int turn = TexasUtil.getNextSeatNum(nextturn, this, false);
 		if (turn == nextturn) {
 			canEndRound = true;
 		}
@@ -436,7 +436,7 @@ public class ThreeCardRoom extends Room {
 				// 获胜的玩家分筹码
 				win = (Long) (betPool.getBetSum());
 				// 给玩家加筹码
-				changePlayerChips(winPlayer, win);
+				TexasUtil.changePlayerChips(winPlayer, win);
 				// 加入获胜列表
 				winPlayersMap.put(winPlayer.getSeatNum(), win);
 				// 更新下一局庄家为本次获胜玩家
@@ -463,7 +463,7 @@ public class ThreeCardRoom extends Room {
 			retMsg.setC("onGameEnd");
 			retMsg.setState(1);
 			retMsg.setMessage(msg);
-			sendMsgToPlayerByRoom(this, JsonUtils.toJson(retMsg, RetMsg.class));
+			TexasUtil.sendMsgToPlayerByRoom(this, JsonUtils.toJson(retMsg, RetMsg.class));
 			// 清除本局状态信息
 			betMap.clear();
 			// 清除betRoundMap
@@ -485,7 +485,7 @@ public class ThreeCardRoom extends Room {
 			SystemLog.printlog("updatePlayer ingamePlayers begin size:" + ingamePlayers.size());
 
 			// 将玩家都移入等待列表
-			movePlayers(getIngamePlayers(), getWaitPlayers());
+			TexasUtil.movePlayers(getIngamePlayers(), getWaitPlayers());
 			for (Player p : getWaitPlayers()) {
 				Player playerData = new Player();
 				playerData.setId(p.getId());
@@ -528,9 +528,9 @@ public class ThreeCardRoom extends Room {
 		retMsg.setC("onPlayerLoseCompare");
 		retMsg.setState(1);
 		retMsg.setMessage(msg);
-		sendMsgToPlayerByRoom(this, JsonUtils.toJson(retMsg, RetMsg.class));
+		TexasUtil.sendMsgToPlayerByRoom(this, JsonUtils.toJson(retMsg, RetMsg.class));
 		// 将玩家移动到等待列表
-		removeIngamePlayer(player);
+		TexasUtil.removeIngamePlayer(player);
 		getWaitPlayers().add(player);
 
 		// 加入互相可见的手牌列表

@@ -28,7 +28,7 @@ var mapping = {
     getRankList: 9
 };
 function wsInit() {
-    var url =  wsip_prod;
+    var url =  wsip;
     if ('WebSocket' in window) {
         websocket = new WebSocket(url);
     } else if ('MozWebSocket' in window) {
@@ -75,13 +75,12 @@ function onOpen(event) {
 }
 function onError(event) {
     console.log(event.data);
-    //无法连接正式服就切换为本地
-    wsip_prod=wsip;
+    //无法连接本地,则切换为正式服
+    wsip=wsip_prod;
     document.getElementById('messages').innerHTML = '连接失败，切换到'+wsip+'......';
     wsInit();
 }
 function onClose(event) {
-    document.getElementById('messages').innerHTML = 'Connection onCloseed';
     wsReOpen();
 }
 

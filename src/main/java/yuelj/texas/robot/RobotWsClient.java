@@ -28,9 +28,7 @@ public class RobotWsClient {
 	public RobotWsClient(boolean loginOnConnect) {
 		this.loginOnConnect = loginOnConnect;
 		try {
-			String urllocal = "ws://127.0.0.1:8080/lxrtexas/ws/texas";
 			String urlServer = "ws://127.0.0.1:8080/texas/ws/texas";
-			String urlServer2 = "ws://120.26.217.116:8080/texas/ws/texas";
 			uri = new URI(urlServer);
 			// texas,lxrtexas
 			// 120.26.217.116，127.0.0.1
