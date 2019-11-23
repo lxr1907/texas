@@ -106,7 +106,7 @@ public class RobotOperationsUtil {
 		// 成功加入房间
 		if (retMsg.getState() == 1) {
 			String roominfo = retMsg.getMessage();
-			robotClient.roomInfo = JsonUtils.fromJson(roominfo, Room.class);
+			robotClient.roomInfo = JsonUtils.fromJson(roominfo, PrivateRoom.class);
 			// 设置座位号
 			for (Player p : robotClient.roomInfo.getWaitPlayers()) {
 				if (p.getId().equals(robotClient.player.getId())) {
@@ -135,14 +135,13 @@ public class RobotOperationsUtil {
 			// 手牌
 			robotClient.player.setHandPokers(proom.getHandPokers());
 			// 身上筹码
-			for (Player p : proom.getRoom().getIngamePlayers()) {
+			for (Player p : proom.getIngamePlayers()) {
 				if (p.getId().equals(robotClient.player.getId())) {
 					robotClient.player.setBodyChips(p.getBodyChips());
 				}
 			}
 			// 房间信息
-			robotClient.setRoomInfo(proom.getRoom());
-			int turn = proom.getRoom().getNextturn();
+			int turn = proom.getNextturn();
 			if (turn == robotClient.player.getSeatNum()) {
 				robotOpt(robotClient);
 			}
@@ -196,10 +195,10 @@ public class RobotOperationsUtil {
 	 */
 	public static void robotOpt(RobotWsClient robotClient) {
 		Random r = new Random();
-		// 思考时间，1到4秒
-		int second = r.nextInt(3) + 1;
+		// 思考时间，1到2秒
+		int second = r.nextInt(1) + 1;
 		try {
-			Thread.sleep(second * 100);
+			Thread.sleep(second * 1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -234,7 +233,7 @@ public class RobotOperationsUtil {
 				betChips(robotClient, bet);
 			} else {
 				// 可以check的情况下，加一个大盲
-				bet = robotClient.roomInfo.getBigBet();
+				bet = bet + robotClient.roomInfo.getBigBet();
 				betChips(robotClient, bet);
 			}
 		} else if (randomNum > 90) {
@@ -242,10 +241,16 @@ public class RobotOperationsUtil {
 			int bet = (int) callNeed;
 			if (bet > 0) {
 				bet = bet * 3;
+				if (bet > maxBet) {
+					bet = (int) maxBet;
+				}
 				betChips(robotClient, bet);
 			} else {
 				// 6倍大盲
-				bet = robotClient.roomInfo.getBigBet() * 3 + bet;
+				bet = bet + robotClient.roomInfo.getBigBet() * 3;
+				if (bet > maxBet) {
+					bet = (int) maxBet;
+				}
 				betChips(robotClient, bet);
 			}
 		} else if (randomNum > 96) {

@@ -18,6 +18,7 @@ import javax.websocket.Session;
 import yuelj.action.websocket.TexasWS;
 import yuelj.constants.RoomTypeList;
 import yuelj.entity.Player;
+import yuelj.entity.PrivateRoom;
 import yuelj.entity.RetMsg;
 import yuelj.service.PlayerService;
 import yuelj.texas.robot.RobotManager;
@@ -29,28 +30,22 @@ import yuelj.utils.serialize.JsonUtils;
 public class TexasUtil {
 
 	/**
-	 * 获取一个对应级别的可用房间，没有则新建一个
+	 * 获取一个对应级别的可用房间，直接进入
 	 * 
 	 * @param level
 	 * @return
 	 */
-	public static Room getUsableRoom(int level, Player p) {
-		Room usableroom = null;
-		Room roomConfig = RoomTypeList.roomTypeMap.get(level);
-		if (p.getChips() < roomConfig.getMinChips()) {
-			return null;
-		}
+	public static Room getUsableRoomThenIn(int level, Player p) {
 		for (int i = 0; i < TexasStatic.roomList.size(); i++) {
 			int roomstate = TexasStatic.roomList.get(i).getRoomstate();
 			if (roomstate == 1 && TexasStatic.roomList.get(i).getLevel() == level) {
-				usableroom = TexasStatic.roomList.get(i);
-				break;
+				boolean success = inRoom(TexasStatic.roomList.get(i), p);
+				if (success) {
+					return TexasStatic.roomList.get(i);
+				}
 			}
 		}
-		if (usableroom == null) {
-			usableroom = createRoom(level);
-		}
-		return usableroom;
+		return createRoomByPlayer(level, p);
 	}
 
 	/**
@@ -61,7 +56,7 @@ public class TexasUtil {
 	 * @param type  1宝鸡拼三张，不传默认德州扑克
 	 * @return
 	 */
-	public static Room getUsableRoom(int level, Player p, int type) {
+	public static Room getUsableRoomThenIn(int level, Player p, int type) {
 		// 加入游戏类型，1宝鸡拼三张，不传默认德州扑克
 		if (type == 1) {
 			ThreeCardRoom usableroom = null;
@@ -81,20 +76,8 @@ public class TexasUtil {
 			}
 			return usableroom;
 		} else {
-			return getUsableRoom(level, p);
+			return getUsableRoomThenIn(level, p);
 		}
-	}
-
-	/**
-	 * 创建一个新房间，将玩家放入房间，然后再将房间放入大厅
-	 * 
-	 * @param level
-	 * @param player
-	 */
-	public static Room createRoomThenIn(int level, Player player) {
-		Room newRoom = createRoom(level);
-		inRoom(newRoom, player);
-		return newRoom;
 	}
 
 	public static Room createRoomThenIn(int level, Player player, int type) {
@@ -104,9 +87,7 @@ public class TexasUtil {
 			TexasStatic.threeCardRoomList.add(newRoom);
 			return newRoom;
 		} else {
-			Room newRoom = createRoom(level);
-			inRoom(newRoom, player);
-			return newRoom;
+			return createRoomByPlayer(level, player);
 		}
 	}
 
@@ -117,24 +98,30 @@ public class TexasUtil {
 	 * 1，检查房间是否还可加入 2，加入房间/重新查找可以进入的房间 3，改变房间状态
 	 */
 	public static boolean inRoom(Room room, Player player) {
-		if (room == null) {
+		if (room == null || player == null) {
+			return false;
+		}
+		// 如果玩家已在房间中，则先出房间
+		outRoom(player);
+		if (room.getRoomstate() == 0) {
 			return false;
 		}
 		// 房间加锁
 		synchronized (room.getFreeSeatStack()) {
-			// 房间满人，修改状态为不可加入
+			// 房间满人，修改状态为不可加入, 加入房间失败
 			if (room.getFreeSeatStack().isEmpty()) {
 				room.setRoomstate(0);
-				return false;// 加入房间失败
+				return false;
 			}
 			room.getWaitPlayers().add(player);
 			// 设定座位号
-			if (player.getSeatNum() == -1) {
-				int seatNum = room.getFreeSeatStack().pop();// 从空闲座位的栈中取出一个座位
-				player.setSeatNum(seatNum);
+			int seatNum = room.getFreeSeatStack().pop();// 从空闲座位的栈中取出一个座位
+			player.setSeatNum(seatNum);
+			if (room.getFreeSeatStack().isEmpty()) {
+				// 房间满人，修改状态为不可加入
+				room.setRoomstate(0);
 			}
 			room.assignChipsForInRoom(player);
-
 			// 成功则设置房间
 			player.setRoom(room);
 		}
@@ -291,6 +278,18 @@ public class TexasUtil {
 	 */
 	public static Room createRoom(int level) {
 		Room room = RoomTypeList.getNewRoom(level);
+		TexasStatic.roomList.add(room);
+		return room;
+	}
+
+	/**
+	 * 创建一个相应级别的房间,玩家直接进入
+	 * 
+	 * @param level
+	 */
+	public static Room createRoomByPlayer(int level, Player player) {
+		Room room = RoomTypeList.getNewRoom(level);
+		inRoom(room, player);
 		TexasStatic.roomList.add(room);
 		return room;
 	}
@@ -616,6 +615,7 @@ public class TexasUtil {
 				sortedMap.put(tmpEntry.getKey(), tmpEntry.getValue());
 			}
 		}
+		oriMap.clear();
 		return sortedMap;
 	}
 
@@ -642,8 +642,17 @@ public class TexasUtil {
 	 */
 	public static void inRoom(Session session, String message) {
 		Room roomMessage = getRoomMessage(message);
-
+		RetMsg rm = new RetMsg();
+		rm.setC("onEnterRoom");
+		rm.setState(1);
 		Player currPlayer = getPlayerBySessionId(session.getId());
+		if (currPlayer == null) {
+			rm.setState(0);
+			String retMsg = JsonUtils.toJson(rm, RetMsg.class);
+			rm.setMessage("请先登录");
+			sendMsgToOne(currPlayer, retMsg);
+			return;
+		}
 		// 进入房间一个非机器人，则进入机器人陪玩
 		if (!currPlayer.getUsername().contains("robot")) {
 			Date now = new Date();
@@ -666,42 +675,28 @@ public class TexasUtil {
 		long restChips = upPlayer.getChips() - bodyChips;
 		currPlayer.setChips(restChips);
 
-		// 查找空房间，没有则创建新房间
-		Room usableRoom = getUsableRoom(roomMessage.getLevel(), currPlayer, roomMessage.getType());
+		Room roomConfig = RoomTypeList.roomTypeMap.get(roomMessage.getLevel());
 
-		RetMsg rm = new RetMsg();
-		rm.setC("onEnterRoom");
-		rm.setState(1);
-		if (usableRoom == null) {
+		if (currPlayer.getChips() < roomConfig.getMinChips()) {
 			rm.setState(0);
 			rm.setMessage("筹码不足");
 			String retMsg = JsonUtils.toJson(rm, RetMsg.class);
 			sendMsgToOne(currPlayer, retMsg);
 			return;
 		}
-
-		if (currPlayer == null) {
-			rm.setState(0);
-			rm.setMessage("请先登录");
-		} else {
-			// 如果玩家已在房间中，则先将其从房间中移除
-			outRoom(currPlayer);
-			boolean inRoomResult = inRoom(usableRoom, currPlayer);
-			if (!inRoomResult) {
-				// 加入失败则创建新房间并加入
-				usableRoom = createRoomThenIn(roomMessage.getLevel(), currPlayer, roomMessage.getType());
-			}
-
-			String roominfo = JsonUtils.toJson(usableRoom, Room.class);
-			rm.setMessage(roominfo);
-			// 通知玩家加入房间成功
-			String retMsg = JsonUtils.toJson(rm, RetMsg.class);
-			sendMsgToOne(currPlayer, retMsg);
-			// 通知所有房间内玩家，有玩家加入
-			sendPlayerToOthers(currPlayer, usableRoom, "onPlayerEnterRoom");
-			// 检查房间是否可以开始游戏,一秒等待
-			usableRoom.checkStart(800);
-		}
+		// 查找空房间，没有则创建新房间
+		Room usableRoom = getUsableRoomThenIn(roomMessage.getLevel(), currPlayer, roomMessage.getType());
+		PrivateRoom pRoom=new PrivateRoom();
+		pRoom.setRoom(usableRoom);
+		String roominfo = JsonUtils.toJson(pRoom, PrivateRoom.class);
+		rm.setMessage(roominfo);
+		// 通知玩家加入房间成功
+		String retMsg = JsonUtils.toJson(rm, RetMsg.class);
+		sendMsgToOne(currPlayer, retMsg);
+		// 通知所有房间内玩家，有玩家加入
+		sendPlayerToOthers(currPlayer, usableRoom, "onPlayerEnterRoom");
+		// 检查房间是否可以开始游戏,一秒等待
+		usableRoom.checkStart(800);
 	}
 
 	/**

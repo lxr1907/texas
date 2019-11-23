@@ -1,8 +1,6 @@
 package yuelj.action.websocket;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -16,6 +14,8 @@ import org.springframework.stereotype.Component;
 import yuelj.entity.BaseEntity;
 import yuelj.entity.Player;
 import yuelj.entity.SystemLogEntity;
+import yuelj.service.LobbyService;
+import yuelj.service.PlayerService;
 import yuelj.service.RoomService;
 import yuelj.service.SystemLogService;
 import yuelj.texas.BeanUtil;
@@ -34,19 +34,89 @@ import yuelj.utils.serialize.JsonUtils;
 @ServerEndpoint("/ws/texas")
 @Component
 public class TexasWS {
+	// 缓冲区最大大小
+	 static final int maxSize = 256;// 1 * 1024;// 1K
 
 	@OnMessage
 	public void onMessage(String message, Session session) throws IOException, InterruptedException {
 		SystemLog.printlog("onMessage:" + message);
+		// onMessageDoReflect(message, session);
+		onMessageDo(message, session);
+	}
+
+	public void onMessageDo(String message, Session session) {
+		BaseEntity be = JsonUtils.fromJson(message, BaseEntity.class);
+		int c = be.getC();
+		try {
+			switch (c) {
+			case 0:// 0注册
+				((PlayerService) SpringUtil.getBean("playerService")).register(session, message);
+				break;
+			case 1:// 1登录
+				((PlayerService) SpringUtil.getBean("playerService")).login(session, message);
+				break;
+			case 2:// 2进入房间
+				((RoomService) SpringUtil.getBean("roomService")).inRoom(session, message);
+				break;
+			case 3:// 3退出房间
+				((RoomService) SpringUtil.getBean("roomService")).outRoom(session, message);
+				break;
+			case 4:// 4坐下
+				((PlayerService) SpringUtil.getBean("playerService")).sitDown(session, message);
+				break;
+			case 5:// 5站起
+				((PlayerService) SpringUtil.getBean("playerService")).standUp(session, message);
+				break;
+			case 6:// 6过牌
+				((PlayerService) SpringUtil.getBean("playerService")).check(session, message);
+				break;
+			case 7:// 7下注
+				((PlayerService) SpringUtil.getBean("playerService")).betChips(session, message);
+				break;
+			case 8:// 8弃牌
+				((PlayerService) SpringUtil.getBean("playerService")).fold(session, message);
+				break;
+			case 9:// 9获取排行榜
+				((LobbyService) SpringUtil.getBean("lobbyService")).getRankList(session, message);
+				break;
+			case 10:// 10查看自己的手牌（拼三张）
+				((RoomService) SpringUtil.getBean("roomService")).lookCards(session, message);
+				break;
+			case 11:// 11和下家比牌（拼三张）
+				((RoomService) SpringUtil.getBean("roomService")).compareCards(session, message);
+				break;
+			case 12:// 12发送表情或消息
+				((RoomService) SpringUtil.getBean("roomService")).sendMessage(session, message);
+				break;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			SystemLogService syslogService = (SystemLogService) SpringUtil.getBean("SystemLogServiceImpl");
+			SystemLogEntity entity = new SystemLogEntity();
+			entity.setType(c + "");
+			entity.setOperation(message);
+			StackTraceElement[] eArray = e.getCause().getStackTrace();
+			String errorMessage = "";
+			for (int i = 0; i < eArray.length; i++) {
+				String className = e.getCause().getStackTrace()[i].getClassName();
+				String MethodName = e.getCause().getStackTrace()[i].getMethodName();
+				int LineNumber = e.getCause().getStackTrace()[i].getLineNumber();
+				errorMessage = errorMessage + "\n---" + className + "." + MethodName + ",line:" + LineNumber;
+			}
+			entity.setContent(e.getCause() + errorMessage);
+			entity.setDatetime(yuelj.utils.dateTime.DateUtil.nowDatetime());
+			syslogService.insertSystemLog(entity);
+			String retMsg = "{\"c\":\"onException\",\"state\":0,\"message\":\"系统异常" + errorMessage + "\"}";
+			sendText(session, retMsg);
+			SystemLog.printlog(e.getCause() + errorMessage);
+		}
+	}
+
+	public void onMessageDoReflect(String message, Session session) {
 		String ctrl[] = getCtrl(message);
 		try {
-			Date now=new Date();
 			BeanUtil.invokeMethod(SpringUtil.getBean(ctrl[0]), ctrl[1], session, message);
-			Date costEnd=new Date();
-			long cost=costEnd.getTime()-now.getTime();
-			if(cost>500){
-				SystemLog.printPerformance("onMessage:" + message+" cost Millisecond"+cost );
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			SystemLogService syslogService = (SystemLogService) SpringUtil.getBean("SystemLogServiceImpl");
@@ -73,6 +143,11 @@ public class TexasWS {
 	@OnOpen
 	public void onOpen(Session session) {
 		SystemLog.printlog("onOpen");
+		// 可以缓冲的传入二进制消息的最大长度
+		session.setMaxBinaryMessageBufferSize(maxSize);
+		// 可以缓冲的传入文本消息的最大长度
+		session.setMaxTextMessageBufferSize(maxSize);
+
 	}
 
 	@OnClose
@@ -130,18 +205,7 @@ public class TexasWS {
 	private String[] getCtrl(String message) {
 		BaseEntity be = JsonUtils.fromJson(message, BaseEntity.class);
 		int c = be.getC();
-		List<String> clist = CtrlList.getClist();
-		String s = clist.get(c);
-		String[] ctrl = s.split("\\.");
-		return ctrl;
+		return CtrlList.clist.get(c);
 	}
 
-	public static void main(String[] args) {
-		String s = "a.b";
-		String ss[] = s.split("\\.");
-		SystemLog.printlog(ss.length);
-		for (int i = 0; i < ss.length; i++) {
-			SystemLog.printlog(ss[i]);
-		}
-	}
 }

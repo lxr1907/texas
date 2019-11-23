@@ -248,8 +248,7 @@ function onGameStart(e, data) {
     clearAllBetChips();
     if (data.state == 1) {
         $.texasMusic.playSendCardMu();
-        var retdata = JSON.parse(data.message);
-        roomInfo = retdata.room;
+        roomInfo = JSON.parse(data.message);
         // 开局重置ingame状态
         for (var i in players) {
             players[i].ingame = false;
@@ -266,7 +265,7 @@ function onGameStart(e, data) {
             p.bodyChips = player.bodyChips;
         }
         // 发手牌
-        myInfo.cards = retdata.handPokers;
+        myInfo.cards = roomInfo.handPokers;
         drawRoomInfos();
     }
 }

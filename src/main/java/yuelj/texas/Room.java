@@ -48,7 +48,7 @@ public class Room {
 	 */
 	private static final int INIT_ROOM_COUNT = 20;
 	static {
-		//初始化创建20个房间
+		// 初始化创建20个房间
 		for (int i = 0; i < INIT_ROOM_COUNT; i++) {
 			TexasUtil.createRoom(0);
 		}
@@ -57,7 +57,7 @@ public class Room {
 	 * 游戏日志
 	 */
 	protected GameLog gameLog = new GameLog();
-	protected List<PlayerOpt> opts;
+	protected List<PlayerOpt> opts = new ArrayList<PlayerOpt>();;
 	/**
 	 * 房间id
 	 */
@@ -127,7 +127,7 @@ public class Room {
 	/**
 	 * 房间状态（0，不可加入；1，可加入）
 	 */
-	private int roomstate = 1;
+	private volatile int roomstate = 1;
 	/**
 	 * 房间中处于等待状态的玩家列表
 	 */
@@ -172,11 +172,11 @@ public class Room {
 	 * 下一个行动的玩家id
 	 */
 	@Expose
-	protected int nextturn = 0;// next player
+	protected volatile int nextturn = 0;// next player
 	/**
 	 * 每轮第一个行动的玩家
 	 */
-	protected int roundturn = 0;
+	protected volatile int roundturn = 0;
 	/**
 	 * 本轮游戏玩家下的最大注倍数，第一轮为1，一共3种，1,2,4
 	 */
@@ -230,7 +230,7 @@ public class Room {
 	public void startGame() {
 		if (this.getGamestate().compareAndSet(0, 1)) {
 			// 游戏日志-玩家操作信息
-			opts = new ArrayList<PlayerOpt>();
+			opts.clear();
 
 			// 由于需要通知在结束阶段进入的玩家牌局信息
 			// 因此延迟到下局开始清除上局信息
@@ -511,6 +511,7 @@ public class Room {
 				betPoolList.add(pool);
 			}
 		}
+		betMap.clear();
 	}
 
 	/**
@@ -660,7 +661,8 @@ public class Room {
 			return;
 		}
 		try {
-			cancelTimer();// 检测到玩家操作，计时取消
+			// 检测到玩家操作，计时取消
+			cancelTimer();
 			synchronized (player) {
 				// 弃牌
 				player.setFold(true);
@@ -729,7 +731,8 @@ public class Room {
 			return;
 		}
 		try {
-			cancelTimer();// 检测到玩家操作，计时取消
+			// 检测到玩家操作，计时取消
+			cancelTimer();
 			// 记录当前轮已经操作过的玩家
 			if (!donePlayerList.contains(player.getSeatNum())) {
 				donePlayerList.add(player.getSeatNum());
@@ -785,20 +788,20 @@ public class Room {
 		if (playerOpt) {
 			// 无效下注额,1筹码不足
 			if (chip <= 0 || chip > player.getBodyChips()) {
-				SystemLog.printlog("not enough chips:" + chip + " getBodyChips():" + player.getBodyChips());
+				SystemLog.printlog("betchipIn error not enough chips:" + chip + " getBodyChips():" + player.getBodyChips());
 				return false;
 			}
 			// 2.在没有allin的情况下，如果不是跟注，则下注必须是大盲的整数倍
 			if (chip < player.getBodyChips()) {
 				// 1.不能小于之前下注
 				if ((chip + oldBetThisRound) < thisRoom.getRoundMaxBet()) {
-					SystemLog.printlog("< getRoundMaxBet() chip:" + chip + "oldBetThisRound:" + oldBetThisRound
+					SystemLog.printlog("betchipIn error < getRoundMaxBet() chip:" + chip + "oldBetThisRound:" + oldBetThisRound
 							+ " max:" + thisRoom.getRoundMaxBet());
 					return false;
 				}
 				if ((chip + oldBetThisRound) != thisRoom.getRoundMaxBet()) {
 					if ((chip + oldBetThisRound) % thisRoom.getBigBet() != 0) {
-						SystemLog.printlog("% getBigBet() != 0:" + chip + "oldBetThisRound:" + oldBetThisRound);
+						SystemLog.printlog("betchipIn error % getBigBet() != 0:" + chip + "oldBetThisRound:" + oldBetThisRound);
 						return false;
 					}
 				}
@@ -807,7 +810,8 @@ public class Room {
 		}
 		try {
 			if (playerOpt) {
-				cancelTimer();// 检测到玩家操作，计时取消
+				// 检测到玩家操作，计时取消
+				cancelTimer();
 			}
 			// 设置本轮最大加注
 			if (chip > thisRoom.getRoundMaxBet()) {
@@ -1044,11 +1048,13 @@ public class Room {
 	/**
 	 * 取消计时
 	 */
-	public void cancelTimer() {
+	public boolean cancelTimer() {
+		boolean result = false;
 		if (timerTask != null) {
-			timerTask.cancel();
+			result = timerTask.cancel();
 			timerTask = null;
 		}
+		return result;
 	}
 
 	public int getRestBetweenGame() {

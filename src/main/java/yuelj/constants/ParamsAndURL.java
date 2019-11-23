@@ -9,15 +9,7 @@ public class ParamsAndURL {
 	 * 设置当前所在的环境ONLINE线上，TEST测试环境
 	 */
 	public static final String TEST_OR_ONLINE = "TEST";
-	// 阿里云盾绿网
-	public static final String Green_accessKeyId_TEST = "LTAIvF9OqJPOFFHP";
-	public static final String Green_accessKeySecret_TEST = "3KlcIX6WktR1REaUJuTAD0sGVyvszL";
-
-	// OSS存储
-	public static final String OSSUpload_accessKeyId_TEST = "qeRpZl7hhtewzOHI";
-	public static final String OSSUpload_accessKeySecret_TEST = "FTzKszkMldOrrFcMdt3YhLKDX9rztB";
-	public static final String OSSUpload_endpoint_TEST = "http://oss-cn-hangzhou.aliyuncs.com";
-	public static final String OSSUpload_IMG_BUCKET_TEST = "fdjimg";
+	
 	// memcache缓存
 	public static final String MEMCACHE_host_TEST = "127.0.0.1";
 	public static final String MEMCACHE_host_ONLINE = "44478f99146944ea.m.cnhzalicm10pub001.ocs.aliyuncs.com";
