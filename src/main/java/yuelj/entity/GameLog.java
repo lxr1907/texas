@@ -60,7 +60,8 @@ public class GameLog extends BaseEntity {
 	 */
 	private long countBetpool;
 	/**
-	 * 奖池信息  
+	 * 奖池信息
+	 * 
 	 * <pre>
 	 * <p>
 	 * playerNickName 从 主底池中赢得 11742

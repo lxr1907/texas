@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.annotations.Expose;
 
@@ -26,6 +27,7 @@ import yuelj.entity.PlayerOpt;
 import yuelj.entity.PrivateRoom;
 import yuelj.entity.RetMsg;
 import yuelj.entity.SystemLogEntity;
+import yuelj.service.GameLogService;
 import yuelj.service.PlayerService;
 import yuelj.service.SystemLogService;
 import yuelj.service.impl.LobbyServiceImpl;
@@ -40,13 +42,12 @@ import yuelj.utils.serialize.JsonUtils;
  * @author Ming
  *
  */
+@Component
 public class Room {
 	/**
 	 * 游戏日志
 	 */
-	@Autowired
-	protected GameLog gameLog;
-
+	protected GameLog gameLog = new GameLog();
 	protected List<PlayerOpt> opts;
 	/**
 	 * 房间id
@@ -296,15 +297,17 @@ public class Room {
 			}
 			startTimer(this);// 开始计时
 			// 游戏日志
-			this.gameLog.setStartTime(DateUtil.nowDatetime());
+			gameLog.setStartTime(DateUtil.nowDatetime());
 			String initInfo = JsonUtils.toJson(this.getIngamePlayers(), this.getIngamePlayers().getClass());
-			this.gameLog.setPlayersInitInfo(initInfo);
-			this.gameLog.setRoomLevel(this.getLevel());
-			this.gameLog.setRoomType("普通场");//
-			this.gameLog.setBigBet(JsonUtils.toJson(bigBetPlayer, Player.class));
-			this.gameLog.setSmallBet(JsonUtils.toJson(smallBetPlayer, Player.class));
-			this.gameLog.setDealer(
+			gameLog.setPlayersInitInfo(initInfo);
+			gameLog.setRoomLevel(this.getLevel());
+			gameLog.setRoomType("普通场");//
+			gameLog.setBigBet(JsonUtils.toJson(bigBetPlayer, Player.class));
+			gameLog.setSmallBet(JsonUtils.toJson(smallBetPlayer, Player.class));
+			gameLog.setDealer(
 					JsonUtils.toJson(TexasUtil.getPlayerBySeatNum(dealer, this.getIngamePlayers()), Player.class));
+			GameLogService gameLogService = (GameLogService) SpringUtil.getBean("gameLogService");
+			gameLogService.insertGameLog(gameLog);
 
 		}
 	}
