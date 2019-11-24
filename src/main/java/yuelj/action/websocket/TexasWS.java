@@ -174,6 +174,7 @@ public class TexasWS {
 			roomService.outRoom(session, "", false);
 		}
 		TexasStatic.loginPlayerMap.remove(session.getId());
+		TexasStatic.playerSessionMap.remove(p.getId());
 	}
 
 	/**

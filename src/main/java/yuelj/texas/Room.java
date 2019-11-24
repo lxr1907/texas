@@ -795,7 +795,7 @@ public class Room {
 		if (playerOpt) {
 			// 2.在没有allin的情况下，如果不是跟注，则下注必须是大盲的整数倍
 			if (chip < player.getBodyChips()) {
-				// 不能小于之前下注,否则强制增加到跟注筹码，不够则allin
+				//2.1跟注-- 不能小于之前下注,否则强制增加到跟注筹码，不够则allin
 				if ((chip + oldBetThisRound) < thisRoom.getRoundMaxBet()) {
 					logger.error("betchipIn error < getRoundMaxBet() chip:" + chip + "oldBetThisRound:"
 							+ oldBetThisRound + " max:" + thisRoom.getRoundMaxBet());
@@ -805,6 +805,7 @@ public class Room {
 						chip = (int) player.getBodyChips();
 					}
 				}
+				//2.2加注，反加-- 
 				if ((chip + oldBetThisRound) != thisRoom.getRoundMaxBet()) {
 					// 本轮已经下注+当前加注-本轮最大下注，必须=大盲注的整数倍
 					if ((chip + oldBetThisRound - thisRoom.getRoundMaxBet()) % thisRoom.getBigBet() != 0) {

@@ -213,6 +213,7 @@ public class RobotOperationsUtil {
 			robotOut(robotClient);
 		}
 	}
+
 	/**
 	 * 轮到机器人操作
 	 * 
@@ -233,8 +234,7 @@ public class RobotOperationsUtil {
 		long bigbet = robotClient.getRoomInfo().getBigBet();
 		// 计算call或check需要的下注
 		for (Map.Entry<Integer, Long> entry : robotClient.roomInfo.getBetRoundMap().entrySet()) {
-			logger.info(entry.getKey() + "--->" + entry.getValue());
-			if (entry.getKey() == robotClient.player.getSeatNum()) {
+			if (entry.getKey().equals(robotClient.player.getSeatNum())) {
 				if (entry.getValue() != null) {
 					mybet = entry.getValue();
 				}
@@ -246,13 +246,14 @@ public class RobotOperationsUtil {
 		int randomNum = RandomNumUtil.getNextInt(2);
 		// 一定概率加注2倍bigbet
 		int followBet = (int) callNeed;
-		int addBet = (int) bigbet * 2 + (int) callNeed;
+		int addBet = (int) ((bigbet * 2 + callNeed) );
 		if (randomNum < 40 && callNeed > 0) {
 			// 一定概率fold
 			fold(robotClient);
 		} else if (randomNum < 80) {
 			if (followBet > 0) {
-				//logger.error("callNeed:" + callNeed + "maxBet:" + maxBet + "myBet:" + mybet+",followBet:"+followBet);
+				// logger.error("callNeed:" + callNeed + "maxBet:" + maxBet + "myBet:" +
+				// mybet+",followBet:"+followBet);
 				// 可以跟注，跟注
 				betChips(robotClient, followBet);
 			} else {
@@ -261,7 +262,8 @@ public class RobotOperationsUtil {
 			}
 		} else if (randomNum < 96) {
 			if (addBet > 0) {
-				//logger.error("callNeed:" + callNeed + "maxBet:" + maxBet + "myBet:" + mybet+",addBet:"+addBet);
+				// logger.error("callNeed:" + callNeed + "maxBet:" + maxBet + "myBet:" +
+				// mybet+",addBet:"+addBet);
 				betChips(robotClient, addBet);
 			} else {
 				// 可以check的情况下
