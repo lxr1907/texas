@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
-import yuelj.utils.logs.SystemLog;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 伪随机算法
@@ -13,11 +14,12 @@ import yuelj.utils.logs.SystemLog;
  *
  */
 public class PRandom {
+	private static Logger logger = LogManager.getLogger(PRandom.class);
 	public static void main(String[] args) {
 		long start = new Date().getTime();
 		generateListTest();
 		long end = new Date().getTime();
-		SystemLog.printlog(end - start);
+		logger.info(end - start);
 	}
 
 	private static void generateListTest() {
@@ -34,7 +36,7 @@ public class PRandom {
 		// calculateProbabilityByWeight(probabilityList);
 		ArrayList<Integer> resultList = getRandmValueList(80000, probabilityList);
 		// for (int i : resultList) {
-		// SystemLog.printlog(i);
+		// logger.info(i);
 		// }
 		ArrayList<Integer> timesList = new ArrayList<>(10);
 		for (int i = 0; i < 10; i++) {
@@ -44,10 +46,10 @@ public class PRandom {
 			timesList.set(i, timesList.get(i) + 1);
 		}
 		for (int i : timesList) {
-			SystemLog.printlog(i);
+			logger.info(i);
 		}
 		for (ProbabilityEntity i : probabilityList) {
-			SystemLog.printlog(i.getProbability());
+			logger.info(i.getProbability());
 		}
 	}
 

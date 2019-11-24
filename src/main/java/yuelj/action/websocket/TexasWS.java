@@ -9,6 +9,8 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import yuelj.entity.BaseEntity;
@@ -22,7 +24,6 @@ import yuelj.texas.BeanUtil;
 import yuelj.texas.CtrlList;
 import yuelj.texas.TexasStatic;
 import yuelj.utils.SpringUtil;
-import yuelj.utils.logs.SystemLog;
 import yuelj.utils.serialize.JsonUtils;
 
 /**
@@ -35,11 +36,13 @@ import yuelj.utils.serialize.JsonUtils;
 @Component
 public class TexasWS {
 	// 缓冲区最大大小
-	 static final int maxSize = 256;// 1 * 1024;// 1K
+	static final int maxSize = 256;// 1 * 1024;// 1K
+
+	private Logger logger = LogManager.getLogger(TexasWS.class);
 
 	@OnMessage
 	public void onMessage(String message, Session session) throws IOException, InterruptedException {
-		SystemLog.printlog("onMessage:" + message);
+		logger.info("onMessage:" + message);
 		// onMessageDoReflect(message, session);
 		onMessageDo(message, session);
 	}
@@ -109,7 +112,7 @@ public class TexasWS {
 			syslogService.insertSystemLog(entity);
 			String retMsg = "{\"c\":\"onException\",\"state\":0,\"message\":\"系统异常" + errorMessage + "\"}";
 			sendText(session, retMsg);
-			SystemLog.printlog(e.getCause() + errorMessage);
+			logger.info(e.getCause() + errorMessage);
 		}
 	}
 
@@ -136,13 +139,13 @@ public class TexasWS {
 			syslogService.insertSystemLog(entity);
 			String retMsg = "{\"c\":\"onException\",\"state\":0,\"message\":\"系统异常" + errorMessage + "\"}";
 			sendText(session, retMsg);
-			SystemLog.printlog(e.getCause() + errorMessage);
+			logger.info(e.getCause() + errorMessage);
 		}
 	}
 
 	@OnOpen
 	public void onOpen(Session session) {
-		SystemLog.printlog("onOpen");
+		logger.info("onOpen");
 		// 可以缓冲的传入二进制消息的最大长度
 		session.setMaxBinaryMessageBufferSize(maxSize);
 		// 可以缓冲的传入文本消息的最大长度
@@ -153,13 +156,13 @@ public class TexasWS {
 	@OnClose
 	public void onClose(Session session) {
 		onConnectLost(session);
-		SystemLog.printlog(" connection closed ");
+		logger.info(" connection closed ");
 	}
 
 	@OnError
 	public void onError(Session session, Throwable e) {
 		onConnectLost(session);
-		SystemLog.printlog(" connection error: " + e.getMessage());
+		logger.info(" connection error: " + e.getMessage());
 		e.printStackTrace();
 	}
 
@@ -187,7 +190,7 @@ public class TexasWS {
 			if (session.isOpen()) {
 				try {
 					session.getBasicRemote().sendText(text);
-					// SystemLog.printlog(text);
+					// logger.info(text);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

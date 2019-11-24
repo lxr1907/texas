@@ -2,9 +2,11 @@ package yuelj.constants;
 
 import java.lang.reflect.Field;
 
-import yuelj.utils.logs.SystemLog;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ParamsAndURL {
+	private static Logger logger = LogManager.getLogger(ParamsAndURL.class);
 	/**
 	 * 设置当前所在的环境ONLINE线上，TEST测试环境
 	 */
@@ -41,6 +43,6 @@ public class ParamsAndURL {
 	}
 
 	public static void main(String[] args) {
-		SystemLog.printlog(getParam("WSTOCK_ACC"));
+		logger.info(getParam("WSTOCK_ACC"));
 	}
 }

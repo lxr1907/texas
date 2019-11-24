@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import yuelj.utils.logs.SystemLog;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CardUtil {
+	private static Logger logger = LogManager.getLogger(CardUtil.class);
 	public static String getType(int i) {
 		String str = null;
 		switch (i) {
@@ -1008,6 +1010,6 @@ public class CardUtil {
 			listold.add(oldcards[i]);
 		}
 		Integer result = compareValue(listnew, listold);
-		SystemLog.printlog(result);
+		logger.info(result);
 	}
 }

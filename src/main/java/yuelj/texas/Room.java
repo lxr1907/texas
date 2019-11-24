@@ -13,6 +13,8 @@ import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.annotations.Expose;
@@ -30,9 +32,9 @@ import yuelj.service.GameLogService;
 import yuelj.service.PlayerService;
 import yuelj.service.SystemLogService;
 import yuelj.service.impl.LobbyServiceImpl;
+import yuelj.texas.robot.RobotOperationsUtil;
 import yuelj.utils.SpringUtil;
 import yuelj.utils.dateTime.DateUtil;
-import yuelj.utils.logs.SystemLog;
 import yuelj.utils.serialize.JsonUtils;
 
 /**
@@ -43,6 +45,7 @@ import yuelj.utils.serialize.JsonUtils;
  */
 @Component
 public class Room {
+	private static Logger logger = LogManager.getLogger(RobotOperationsUtil.class);
 	/**
 	 * 设置初始化房间数量
 	 */
@@ -335,7 +338,7 @@ public class Room {
 		// 尝试更新游戏状态为2：结算中
 		if (this.getGamestate().compareAndSet(1, 2)) {
 			long cut = 0;// 本局游戏的系统抽成筹码
-			SystemLog.printlog("endGame begin");
+			logger.info("endGame begin");
 			int allinCount = 0;
 			// 统计allin玩家数
 			for (Player p : getIngamePlayers()) {
@@ -345,7 +348,7 @@ public class Room {
 			}
 			// 如果公共牌没有发完，且allin人数大于等于2,则先发完公共牌
 			if (communityCards.size() < 5 && allinCount >= 2) {
-				SystemLog.printlog("communityCards.size() < 5 && allinCount >= 2");
+				logger.info("communityCards.size() < 5 && allinCount >= 2");
 				// 发公共牌
 				int assignCardCount = 5 - communityCards.size();
 				TexasUtil.assignCommonCardByNum(this, assignCardCount);
@@ -372,7 +375,7 @@ public class Room {
 			// 奖池列表
 			List<BetPool> betPoolList = new ArrayList<BetPool>();
 			// 计算betpool
-			SystemLog.printlog("sumBetPoolList begin");
+			logger.info("sumBetPoolList begin");
 			sumBetPoolList(betPoolList, betMap, ingamePlayers);
 			// 对每个分池结算
 			for (BetPool betpool : betPoolList) {
@@ -382,7 +385,7 @@ public class Room {
 				List<Player> poolPlayers = betpool.getBetPlayerList();
 				if (finalCardsMap.size() > 0) {
 					// 获取本分池获胜玩家
-					SystemLog.printlog("compareCardsToWinList begin");
+					logger.info("compareCardsToWinList begin");
 					winPlayerList = compareCardsToWinList(poolPlayers, finalCardsMap);
 				}
 				// 没有则认为第一个获胜,若公共牌未发完结束游戏，存在该情况
@@ -408,8 +411,8 @@ public class Room {
 					}
 					winPlayersMap.put(p.getSeatNum(), win);
 					LobbyServiceImpl.updateRankList(p);
-					SystemLog.printlog("winPlayersMap.put :" + p.getSeatNum() + " thisPoolWin:" + win
-							+ "poolplayerssize:" + betpool.getBetPlayerList().size());
+					logger.info("winPlayersMap.put :" + p.getSeatNum() + " thisPoolWin:" + win + "poolplayerssize:"
+							+ betpool.getBetPlayerList().size());
 				}
 			}
 
@@ -443,7 +446,7 @@ public class Room {
 
 			// 更新玩家筹码数到数据库
 			PlayerService pservice = (PlayerService) SpringUtil.getBean("playerService");
-			SystemLog.printlog("updatePlayer ingamePlayers begin size:" + ingamePlayers.size());
+			logger.info("updatePlayer ingamePlayers begin size:" + ingamePlayers.size());
 			for (Player p : getWaitPlayers()) {
 				Player playerData = new Player();
 				playerData.setId(p.getId());
@@ -452,14 +455,14 @@ public class Room {
 					playerData.setChips(p.getChips() + p.getBodyChips());
 					pservice.updatePlayer(playerData);
 				}
-				SystemLog.printlog(
+				logger.info(
 						"updatePlayer ingamePlayers begin p:" + p.getUsername() + " chips:" + playerData.getChips());
 			}
 
 			Date costEnd = new Date();
 			long cost = costEnd.getTime() - now.getTime();
 			if (cost > 500) {
-				SystemLog.printPerformance("endGame:" + " cost Millisecond" + cost);
+				logger.error("endGame:" + " cost Millisecond" + cost);
 			}
 			// 尝试更新游戏状态为0：等待开始
 			this.getGamestate().compareAndSet(2, 0);
@@ -525,7 +528,7 @@ public class Room {
 		List<Player> winPlayerList = new ArrayList<>();
 		List<Integer> listold = null;
 		if (finalCardsMap.size() == 0) {
-			SystemLog.printlog("finalCardsMap.size()==0 can not compareCardsToWinList");
+			logger.info("finalCardsMap.size()==0 can not compareCardsToWinList");
 			return null;
 		}
 		for (Entry<Integer, List<Integer>> e : finalCardsMap.entrySet()) {
@@ -541,26 +544,25 @@ public class Room {
 			if (!inThisPool) {
 				continue;
 			}
-			SystemLog.printlog("compareCardsToWinList inThisPool:" + inThisPool);
+			logger.info("compareCardsToWinList inThisPool:" + inThisPool);
 			// 旧卡组为空，则加入
 			if (listold == null) {
 				listold = e.getValue();
-				SystemLog.printlog("getPlayerBySeatNum begin seatNum:" + e.getKey() + " poolPlayers:"
+				logger.info("getPlayerBySeatNum begin seatNum:" + e.getKey() + " poolPlayers:"
 						+ JsonUtils.toJson(poolPlayers, poolPlayers.getClass()));
 				Player wp = TexasUtil.getPlayerBySeatNum(e.getKey(), poolPlayers);
 				if (wp != null) {
 					winPlayerList.add(wp);
 				} else {
-					SystemLog.printlog("winPlayerList.add e.getKey():" + e.getKey() + "wp not in poolPlayers");
+					logger.info("winPlayerList.add e.getKey():" + e.getKey() + "wp not in poolPlayers");
 				}
-				SystemLog.printlog("winPlayerList.add e.getKey():" + e.getKey());
+				logger.info("winPlayerList.add e.getKey():" + e.getKey());
 			} else {
 				List<Integer> listNew = e.getValue();
 				// 比较新旧卡组，大或相等则清空winPlayerList，加入新卡组的玩家
-				SystemLog.printlog(
-						"compareCardsToWinList CardUtil.compareValue listNew:" + listNew + " listold" + listold);
+				logger.info("compareCardsToWinList CardUtil.compareValue listNew:" + listNew + " listold" + listold);
 				int result = CardUtil.compareValue(e.getValue(), listold);
-				SystemLog.printlog("compareCardsToWinList CardUtil.compareValue result:" + result);
+				logger.info("compareCardsToWinList CardUtil.compareValue result:" + result);
 				if (result == 1) {
 					winPlayerList.clear();
 					winPlayerList.add(TexasUtil.getPlayerBySeatNum(e.getKey(), poolPlayers));
@@ -727,7 +729,7 @@ public class Room {
 		}
 		// 小于最大下注，不能check
 		if (oldBetThisRound < getRoundMaxBet()) {
-			SystemLog.printlog("can not check, bet:" + oldBetThisRound + " getRoundMaxBet:" + getRoundMaxBet());
+			logger.info("can not check, bet:" + oldBetThisRound + " getRoundMaxBet:" + getRoundMaxBet());
 			return;
 		}
 		try {
@@ -788,20 +790,21 @@ public class Room {
 		if (playerOpt) {
 			// 无效下注额,1筹码不足
 			if (chip <= 0 || chip > player.getBodyChips()) {
-				SystemLog.printlog("betchipIn error not enough chips:" + chip + " getBodyChips():" + player.getBodyChips());
+				logger.error("betchipIn error not enough chips:" + chip + " getBodyChips():" + player.getBodyChips());
 				return false;
 			}
 			// 2.在没有allin的情况下，如果不是跟注，则下注必须是大盲的整数倍
 			if (chip < player.getBodyChips()) {
 				// 1.不能小于之前下注
 				if ((chip + oldBetThisRound) < thisRoom.getRoundMaxBet()) {
-					SystemLog.printlog("betchipIn error < getRoundMaxBet() chip:" + chip + "oldBetThisRound:" + oldBetThisRound
+					logger.error("betchipIn error < getRoundMaxBet() chip:" + chip + "oldBetThisRound:" + oldBetThisRound
 							+ " max:" + thisRoom.getRoundMaxBet());
 					return false;
 				}
 				if ((chip + oldBetThisRound) != thisRoom.getRoundMaxBet()) {
 					if ((chip + oldBetThisRound) % thisRoom.getBigBet() != 0) {
-						SystemLog.printlog("betchipIn error % getBigBet() != 0:" + chip + "oldBetThisRound:" + oldBetThisRound);
+						logger.error(
+								"betchipIn error % getBigBet() != 0:" + chip + "oldBetThisRound:" + oldBetThisRound);
 						return false;
 					}
 				}
@@ -870,7 +873,7 @@ public class Room {
 		boolean canEndRound = true;
 		if (getIngamePlayers().size() == 1) {
 			// 结算游戏
-			SystemLog.printlog("only one IngamePlayers endgame start");
+			logger.info("only one IngamePlayers endgame start");
 			endGame();
 			return true;
 		}
@@ -890,7 +893,7 @@ public class Room {
 					betMax = getBetMap().get(p.getSeatNum());
 				}
 			}
-			SystemLog.printlog("checkRoundEnd betMax:" + betMax);
+			logger.info("checkRoundEnd betMax:" + betMax);
 			for (int i = 0; i < getIngamePlayers().size(); i++) {
 				Player p = getIngamePlayers().get(i);
 				// 已经弃牌的排除在外
@@ -899,7 +902,7 @@ public class Room {
 				}
 				if (getBetMap().get(p.getSeatNum()) == null) {
 					// 存在没有下注的玩家
-					SystemLog.printlog("checkRoundEnd no bet seatNum:" + p.getSeatNum());
+					logger.info("checkRoundEnd no bet seatNum:" + p.getSeatNum());
 					canEndRound = false;
 					break;
 				}
@@ -907,7 +910,7 @@ public class Room {
 				if (p.getBodyChips() > 0) {
 					// 没有弃牌的玩家中，存在下注额度小于betMax，则本轮不能结束
 					if (betMax > getBetMap().get(p.getSeatNum())) {
-						SystemLog.printlog("not allin bet<maxbet seatNum:" + p.getSeatNum() + " bet "
+						logger.info("not allin bet<maxbet seatNum:" + p.getSeatNum() + " bet "
 								+ getBetMap().get(p.getSeatNum()) + " betMax:" + betMax);
 						canEndRound = false;
 						break;
@@ -915,7 +918,7 @@ public class Room {
 				}
 			}
 		} else {
-			SystemLog.printlog("checkRoundEnd getDonePlayerList().size() < getIngamePlayers().size()");
+			logger.info("checkRoundEnd getDonePlayerList().size() < getIngamePlayers().size()");
 			canEndRound = false;
 		}
 
@@ -925,7 +928,7 @@ public class Room {
 			canEndRound = true;
 		}
 		if (canEndRound) {
-			SystemLog.printlog("canEndRound = true");
+			logger.info("canEndRound = true");
 			// 第二轮最低加注设为0
 			setRoundMaxBet(0);
 			// 开始新的一轮
@@ -981,7 +984,7 @@ public class Room {
 					Player p = TexasUtil.getPlayerBySeatNum(getNextturn(), getIngamePlayers());
 					if (p != null) {
 						// 帮其执行弃牌操作
-						SystemLog.printlog(p.getUsername() + " time is up,fold");
+						logger.info(p.getUsername() + " time is up,fold");
 						fold(p);
 					} else {
 						if (room.getGamestate().get() == 1) {
@@ -1037,7 +1040,7 @@ public class Room {
 			this.endGame();
 			return true;
 		}
-		SystemLog.printlog(playerCount + "断线后人数大于1");
+		logger.info(playerCount + "断线后人数大于1");
 		return false;
 	}
 
@@ -1295,13 +1298,13 @@ public class Room {
 //			ingamePlayers.add(p);
 //		}
 //		sumBetPoolList(betPoolList, betMap, ingamePlayers);
-//		SystemLog.printlog(JsonUtils.toJson(betMap, betMap.getClass()));
+//		logger.info(JsonUtils.toJson(betMap, betMap.getClass()));
 //		for (BetPool pool : betPoolList) {
-//			SystemLog.printlog("pool:" + pool.getBetSum());
-//			SystemLog.printlog("size:" + pool.getBetPlayerList().size());
-//			SystemLog.printlog(JsonUtils.toJson(pool.getBetPlayerList(), pool.getBetPlayerList().getClass()));
+//			logger.info("pool:" + pool.getBetSum());
+//			logger.info("size:" + pool.getBetPlayerList().size());
+//			logger.info(JsonUtils.toJson(pool.getBetPlayerList(), pool.getBetPlayerList().getClass()));
 //		}
-//		SystemLog.printlog("poolSize:" + betPoolList.size());
+//		logger.info("poolSize:" + betPoolList.size());
 //	}
 //
 //	public static void testCompareCardsToWinList() {
@@ -1322,7 +1325,7 @@ public class Room {
 //		finalCardsMap.put(5, new ArrayList<Integer>(Arrays.asList(12, 14, 39, 40, 51, 2)));
 //		// "finalCardsMap\":{\"1\":,\"2\":[],\"3\":[],\"4\":[],\"5\":[]}
 //		List<Player> winPlayerList = compareCardsToWinList(poolPlayers, finalCardsMap);
-//		SystemLog.printlog(JsonUtils.toJson(poolPlayers, poolPlayers.getClass()));
-//		SystemLog.printlog(JsonUtils.toJson(winPlayerList, winPlayerList.getClass()));
+//		logger.info(JsonUtils.toJson(poolPlayers, poolPlayers.getClass()));
+//		logger.info(JsonUtils.toJson(winPlayerList, winPlayerList.getClass()));
 //	}
 }

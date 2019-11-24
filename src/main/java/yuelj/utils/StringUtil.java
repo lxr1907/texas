@@ -6,14 +6,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import yuelj.utils.logs.SystemLog;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 字符串工具类
@@ -21,6 +18,8 @@ import yuelj.utils.logs.SystemLog;
  * @author lxr 2015年6月25日 下午3:31:03
  */
 public class StringUtil {
+	private static Logger logger = LogManager.getLogger(StringUtil.class);
+
 	/**
 	 * 判断字符串是否为空
 	 * 
@@ -227,8 +226,7 @@ public class StringUtil {
 	/**
 	 * 十六进制字符串到字节数组的转换
 	 * 
-	 * @param s
-	 *            十六进制字符串
+	 * @param s 十六进制字符串
 	 * @return 字节数组
 	 */
 	public static byte[] hexStringToByteArray(String s) {
@@ -243,8 +241,7 @@ public class StringUtil {
 	/**
 	 * 十六进制字符到字节类型数据的转换
 	 * 
-	 * @param chr
-	 *            十六进制字符
+	 * @param chr 十六进制字符
 	 * @return 字节类型数据
 	 */
 	private static byte chr2hex(String chr) {
@@ -370,9 +367,4 @@ public class StringUtil {
 		}
 	}
 
-	
-
-	public static void main(String[] args) {
-		SystemLog.printlog(unescapeUnicode("%E7%9A%84%E7%9A%84"));
-	}
 }

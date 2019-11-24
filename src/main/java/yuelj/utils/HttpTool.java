@@ -24,9 +24,11 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import yuelj.utils.logs.SystemLog;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class HttpTool {
+	private static Logger logger = LogManager.getLogger(HttpTool.class);
 
 	public static String doPostHttp(String reqUrl, Map<String, String> parameters) {
 		HttpURLConnection urlConn = null;
@@ -222,7 +224,7 @@ public final class HttpTool {
 	 */
 	private static HostnameVerifier ignoreHostnameVerifier = new HostnameVerifier() {
 		public boolean verify(String s, SSLSession sslsession) {
-			SystemLog.printlog("WARNING: Hostname is not matched for cert.");
+			logger.info("WARNING: Hostname is not matched for cert.");
 			return true;
 		}
 	};

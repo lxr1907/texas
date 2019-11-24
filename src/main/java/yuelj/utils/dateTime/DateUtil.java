@@ -6,9 +6,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import yuelj.utils.logs.SystemLog;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class DateUtil {
+	private static Logger logger = LogManager.getLogger(DateUtil.class);
 
 	/**
 	 * 获取当前时间
@@ -118,7 +120,7 @@ public class DateUtil {
 		if (t.contains(".")) {
 			String[] b = t.split("\\.");
 			t = b[0];
-			SystemLog.printlog(t);
+			logger.info(t);
 		}
 		SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date date = formatDate.parse(t);
@@ -377,7 +379,7 @@ public class DateUtil {
 		Date startdate = DateUtil.parseDateStr("2015-10-14");
 		Date enddate = DateUtil.parseDateStr("2015-10-15");
 		String a = daysBetween(startdate, enddate) + "";
-		SystemLog.printlog(a);
+		logger.info(a);
 	}
 
 	private static int millisecondsToDays(long intervalMs) {

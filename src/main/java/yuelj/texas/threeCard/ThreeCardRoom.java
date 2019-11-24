@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 
@@ -27,10 +30,10 @@ import yuelj.texas.Room;
 import yuelj.texas.TexasUtil;
 import yuelj.utils.SpringUtil;
 import yuelj.utils.dateTime.DateUtil;
-import yuelj.utils.logs.SystemLog;
 import yuelj.utils.serialize.JsonUtils;
 
 public class ThreeCardRoom extends Room {
+	private static Logger logger = LogManager.getLogger(ThreeCardRoom.class);
 	/**
 	 * 初始锅底，回收的筹码
 	 */
@@ -191,7 +194,7 @@ public class ThreeCardRoom extends Room {
 		if (playerOpt) {
 			// 无效下注额,筹码不足
 			if (chip <= 0 || chip > player.getBodyChips()) {
-				SystemLog.printlog("not enough chips:" + chip + " getBodyChips():" + player.getBodyChips());
+				logger.info("not enough chips:" + chip + " getBodyChips():" + player.getBodyChips());
 				return false;
 			}
 			int betBase = 0;
@@ -203,13 +206,13 @@ public class ThreeCardRoom extends Room {
 			}
 			// 不能小于之前下注倍数
 			if (chip / betBase < thisRoom.getRoundMaxBet()) {
-				SystemLog.printlog("< getRoundMaxBet() chip:" + chip + "oldBetThisRound:" + oldBetThisRound + " max:"
+				logger.info("< getRoundMaxBet() chip:" + chip + "oldBetThisRound:" + oldBetThisRound + " max:"
 						+ thisRoom.getRoundMaxBet());
 				return false;
 			}
 			// 下注必须是最小基数的整数倍
 			if (chip % betBase != 0) {
-				SystemLog.printlog("% betBase != 0:" + chip + "betBase:" + betBase);
+				logger.info("% betBase != 0:" + chip + "betBase:" + betBase);
 				return false;
 			}
 
@@ -294,7 +297,7 @@ public class ThreeCardRoom extends Room {
 
 		// 无效下注额,筹码不足
 		if (chip <= 0 || chip > player.getBodyChips()) {
-			SystemLog.printlog("not enough chips:" + chip + " getBodyChips():" + player.getBodyChips());
+			logger.info("not enough chips:" + chip + " getBodyChips():" + player.getBodyChips());
 			return false;
 		}
 		// 检测到玩家操作，计时取消
@@ -373,7 +376,7 @@ public class ThreeCardRoom extends Room {
 		boolean canEndRound = false;
 		if (getIngamePlayers().size() == 1) {
 			// 结算游戏
-			SystemLog.printlog("threeCard only one IngamePlayers endgame start");
+			logger.info("threeCard only one IngamePlayers endgame start");
 			endGame();
 			return true;
 		}
@@ -403,7 +406,7 @@ public class ThreeCardRoom extends Room {
 		// 尝试更新游戏状态为2：结算中
 		if (this.getGamestate().compareAndSet(1, 2)) {
 			long cut = 0;// 本局游戏的系统抽成筹码
-			SystemLog.printlog("endGame begin");
+			logger.info("endGame begin");
 			// 手牌列表
 			for (Player p : getIngamePlayers()) {
 				List<Integer> hankPoker = new ArrayList<Integer>();
@@ -443,7 +446,7 @@ public class ThreeCardRoom extends Room {
 				this.setDealer(winPlayer.getSeatNum());
 				// 更新排行榜
 				LobbyServiceImpl.updateRankList(winPlayer);
-				SystemLog.printlog("winPlayersMap.put :" + winPlayer.getSeatNum() + " thisPoolWin:" + win);
+				logger.info("winPlayersMap.put :" + winPlayer.getSeatNum() + " thisPoolWin:" + win);
 
 				// 游戏日志
 				this.gameLog.setEndTime(DateUtil.nowDatetime());
@@ -482,7 +485,7 @@ public class ThreeCardRoom extends Room {
 			cardList.clear();
 			// 更新玩家筹码数到数据库
 			PlayerService pservice = (PlayerService) SpringUtil.getBean("playerService");
-			SystemLog.printlog("updatePlayer ingamePlayers begin size:" + ingamePlayers.size());
+			logger.info("updatePlayer ingamePlayers begin size:" + ingamePlayers.size());
 
 			// 将玩家都移入等待列表
 			TexasUtil.movePlayers(getIngamePlayers(), getWaitPlayers());
@@ -494,7 +497,7 @@ public class ThreeCardRoom extends Room {
 					playerData.setChips(p.getChips() + p.getBodyChips());
 					pservice.updatePlayer(playerData);
 				}
-				SystemLog.printlog(
+				logger.info(
 						"updatePlayer ingamePlayers begin p:" + p.getUsername() + " chips:" + playerData.getChips());
 			}
 			// 记录游戏日志

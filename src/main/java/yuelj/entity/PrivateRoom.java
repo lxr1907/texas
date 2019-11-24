@@ -43,6 +43,8 @@ public class PrivateRoom implements Serializable {
 	@Expose
 	private int bigBet;
 	@Expose
+	private int roundMaxBet;
+	@Expose
 	private int nextturn;
 	@Expose
 	private int dealer;
@@ -79,6 +81,14 @@ public class PrivateRoom implements Serializable {
 		setOptTimeout(room.getOptTimeout());
 	}
 
+
+	public int getRoundMaxBet() {
+		return roundMaxBet;
+	}
+
+	public void setRoundMaxBet(int roundMaxBet) {
+		this.roundMaxBet = roundMaxBet;
+	}
 	public int getRoundturn() {
 		return roundturn;
 	}

@@ -2,13 +2,16 @@ package yuelj.utils.cache;
 
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.BinaryConnectionFactory;
 import net.spy.memcached.MemcachedClient;
 import yuelj.constants.ParamsAndURL;
-import yuelj.utils.logs.SystemLog;
 
 public class MemCacheOcsUtils {
+	private static Logger logger = LogManager.getLogger(MemCacheOcsUtils.class);
 	public static final String host = (String) ParamsAndURL.getParam("MEMCACHE_host");
 	public static final String port = "11211"; // 默认端口 11211，不用改
 	public static MemcachedClient cache;
@@ -39,9 +42,9 @@ public class MemCacheOcsUtils {
 			if (value.length() >= 100) {
 				logstr = value.substring(0, 100);
 			}
-			SystemLog.printlog("memcached set key:" + key + ",value:" + logstr);
+			logger.error("memcached set key:" + key + ",value:" + logstr);
 		} catch (Exception e) {
-			SystemLog.printlog("memcached error set key:" + key + ",value:" + value);
+			logger.error("memcached error set key:" + key + ",value:" + value);
 			e.printStackTrace();
 			cache = null;
 		}
@@ -70,10 +73,10 @@ public class MemCacheOcsUtils {
 			// if (value.length() >= 100) {
 			// logstr = value.substring(0, 100);
 			// }
-			// SystemLog.printlog("memcached set key:" + key + ",value:" +
+			// logger.error("memcached set key:" + key + ",value:" +
 			// logstr + "time:" + time);
 		} catch (Exception e) {
-			SystemLog.printlog("memcached error set key:" + key + ",value:" + value);
+			logger.error("memcached error set key:" + key + ",value:" + value);
 			e.printStackTrace();
 			cache = null;
 		}
@@ -87,7 +90,7 @@ public class MemCacheOcsUtils {
 	 */
 	public static String getData(String key) {
 		String value = null;
-		SystemLog.printlog("from memcachekey:" + key);
+		logger.error("from memcachekey:" + key);
 		try {
 			cache = getCache();
 			// 执行get操作，从缓存中读数据,读取key为"ocs"的数据
@@ -98,7 +101,7 @@ public class MemCacheOcsUtils {
 				if (length > 100) {
 					length = 100;
 				}
-				// SystemLog.printlog("Hit from memcache key:" + key + "val:" +
+				// logger.error("Hit from memcache key:" + key + "val:" +
 				// value.substring(0, length));
 			}
 		} catch (Exception e) {
@@ -132,7 +135,7 @@ public class MemCacheOcsUtils {
 			}
 
 			// 执行get操作，从缓存中读数据,读取key为"ocs"的数据
-			SystemLog.printlog("Get memcache:" + cache.get("key-1"));
+			logger.error("Get memcache:" + cache.get("key-1"));
 
 		} catch (Exception e) {
 			e.printStackTrace();

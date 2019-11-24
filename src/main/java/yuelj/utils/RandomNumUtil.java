@@ -12,9 +12,11 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
 
-import yuelj.utils.logs.SystemLog;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class RandomNumUtil {
+	private static Logger logger = LogManager.getLogger(RandomNumUtil.class);
 	private ByteArrayInputStream image;// 图像
 	private String str;// 验证码
 
@@ -88,7 +90,7 @@ public class RandomNumUtil {
 			imageOut.close();
 			input = new ByteArrayInputStream(output.toByteArray());
 		} catch (Exception e) {
-			SystemLog.printlog("验证码图片产生出现错误：" + e.toString());
+			logger.info("验证码图片产生出现错误：" + e.toString());
 		}
 
 		this.image = input;/* 赋值图像 */
@@ -158,12 +160,12 @@ public class RandomNumUtil {
 
 		while ((id / binLen) > 0) {
 			int ind = (int) (id % binLen);
-			// SystemLog.printlog(num + "-->" + ind);
+			// logger.info(num + "-->" + ind);
 			buf[--charPos] = r[ind];
 			id /= binLen;
 		}
 		buf[--charPos] = r[(int) (id % binLen)];
-		// SystemLog.printlog(num + "-->" + num % binLen);
+		// logger.info(num + "-->" + num % binLen);
 		String str = new String(buf, charPos, (32 - charPos));
 		// 不够长度的自动随机补全
 		if (str.length() < s) {
@@ -204,7 +206,7 @@ public class RandomNumUtil {
 			} else {
 				res = ind;
 			}
-			SystemLog.printlog(ind + "-->" + res);
+			logger.info(ind + "-->" + res);
 		}
 		return res;
 	}
@@ -215,6 +217,6 @@ public class RandomNumUtil {
 			toSerialCode(i);
 		}
 		Date end = new Date();
-		SystemLog.printlog((end.getTime() - begin.getTime()));
+		logger.info((end.getTime() - begin.getTime()));
 	}
 }

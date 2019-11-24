@@ -6,16 +6,18 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import yuelj.entity.BetPlayer;
 import yuelj.entity.Player;
 import yuelj.entity.PrivateRoom;
 import yuelj.entity.RetMsg;
-import yuelj.texas.Room;
 import yuelj.utils.RandomNumUtil;
-import yuelj.utils.logs.SystemLog;
 import yuelj.utils.serialize.JsonUtils;
 
 public class RobotOperationsUtil {
+	private static Logger logger = LogManager.getLogger(RobotOperationsUtil.class);
 	// 机器人账号的前缀
 	private static final String robotAccountPre = "robot";
 	// 机器人密码的前缀
@@ -130,18 +132,19 @@ public class RobotOperationsUtil {
 	public static void onGameStart(RobotWsClient robotClient, RetMsg retMsg) {
 		// 游戏开始
 		if (retMsg.getState() == 1) {
-			String roominfo = retMsg.getMessage();
-			PrivateRoom proom = JsonUtils.fromJson(roominfo, PrivateRoom.class);
+			String roomInfoStr = retMsg.getMessage();
+			PrivateRoom roomInfo = JsonUtils.fromJson(roomInfoStr, PrivateRoom.class);
+			robotClient.setRoomInfo(roomInfo);
 			// 手牌
-			robotClient.player.setHandPokers(proom.getHandPokers());
+			robotClient.player.setHandPokers(roomInfo.getHandPokers());
 			// 身上筹码
-			for (Player p : proom.getIngamePlayers()) {
+			for (Player p : roomInfo.getIngamePlayers()) {
 				if (p.getId().equals(robotClient.player.getId())) {
 					robotClient.player.setBodyChips(p.getBodyChips());
 				}
 			}
 			// 房间信息
-			int turn = proom.getNextturn();
+			int turn = roomInfo.getNextturn();
 			if (turn == robotClient.player.getSeatNum()) {
 				robotOpt(robotClient);
 			}
@@ -184,7 +187,11 @@ public class RobotOperationsUtil {
 				oldBet = robotClient.roomInfo.getBetRoundMap().get(bp.getSeatNum());
 			}
 			Long chips = oldBet + bp.getInChips();
-			robotClient.roomInfo.getBetRoundMap().put(bp.getSeatNum(), chips);
+			robotClient.getRoomInfo().getBetRoundMap().put(bp.getSeatNum(), chips);
+			// 设置本轮最大加注
+			if (chips > robotClient.getRoomInfo().getRoundMaxBet()) {
+				robotClient.getRoomInfo().setRoundMaxBet(chips.intValue());
+			}
 		}
 	}
 
@@ -205,10 +212,10 @@ public class RobotOperationsUtil {
 		long callNeed = 0;
 		long maxBet = 0;
 		long mybet = 0;
-		long bigbet=robotClient.getRoomInfo().getBigBet();
+		long bigbet = robotClient.getRoomInfo().getBigBet();
 		// 计算call或check需要的下注
 		for (Map.Entry<Integer, Long> entry : robotClient.roomInfo.getBetRoundMap().entrySet()) {
-			SystemLog.printlog(entry.getKey() + "--->" + entry.getValue());
+			logger.info(entry.getKey() + "--->" + entry.getValue());
 			if (entry.getKey() == robotClient.player.getSeatNum()) {
 				if (entry.getValue() != null) {
 					mybet = entry.getValue();
@@ -221,7 +228,7 @@ public class RobotOperationsUtil {
 			}
 		}
 		callNeed = maxBet - mybet;
-		SystemLog.printlog("callNeed:" + callNeed + "maxBet:" + maxBet + "myBet:" + mybet);
+		logger.info("callNeed:" + callNeed + "maxBet:" + maxBet + "myBet:" + mybet);
 		// 获取10到99随机数
 		int randomNum = RandomNumUtil.getNextInt(2);
 		// 一定概率fold
@@ -241,19 +248,15 @@ public class RobotOperationsUtil {
 			int bet = (int) callNeed;
 			if (bet > 0) {
 				bet = bet * 2;
-				//若加注，则必须等于大盲注的整数倍
-				int times=bet/(int)bigbet;
-				bet=(int)bigbet*times;
+				// 若加注，则必须等于大盲注的整数倍
+				int times = bet / (int) bigbet;
+				bet = (int) bigbet * times;
 				betChips(robotClient, bet);
 			} else {
-				// 6倍大盲
-				bet = bet + robotClient.roomInfo.getBigBet() * 3;
-				if (bet > maxBet) {
-					bet = (int) maxBet;
-				}
-				betChips(robotClient, bet);
+				// 可以check的情况下
+				check(robotClient);
 			}
-		} else  {
+		} else {
 			// 一定概率allin
 			int bet = (int) robotClient.player.getBodyChips();
 			betChips(robotClient, bet);
@@ -281,7 +284,7 @@ public class RobotOperationsUtil {
 	public static void betChips(RobotWsClient robotClient, int chips) {
 		// 当call需要的值大于身上携带
 		if (chips > robotClient.player.getBodyChips()) {
-			SystemLog.printlog("chips > robotClient.player.getBodyChips()  getBodyChips:"
+			logger.info("chips > robotClient.player.getBodyChips()  getBodyChips:"
 					+ robotClient.player.getBodyChips() + "chips" + chips);
 			chips = (int) robotClient.player.getBodyChips();
 		}

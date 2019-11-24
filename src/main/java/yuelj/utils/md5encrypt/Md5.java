@@ -18,7 +18,7 @@ public class Md5 {
 	// 返回形式为数字跟字符串
 	private static String byteToArrayString(byte bByte) {
 		int iRet = bByte;
-		// SystemLog.printlog("iRet="+iRet);
+		// logger.info("iRet="+iRet);
 		if (iRet < 0) {
 			iRet += 256;
 		}

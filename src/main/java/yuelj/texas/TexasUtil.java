@@ -15,6 +15,9 @@ import java.util.Optional;
 
 import javax.websocket.Session;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import yuelj.action.websocket.TexasWS;
 import yuelj.constants.RoomTypeList;
 import yuelj.entity.Player;
@@ -24,10 +27,10 @@ import yuelj.service.PlayerService;
 import yuelj.texas.robot.RobotManager;
 import yuelj.texas.threeCard.ThreeCardRoom;
 import yuelj.utils.SpringUtil;
-import yuelj.utils.logs.SystemLog;
 import yuelj.utils.serialize.JsonUtils;
 
 public class TexasUtil {
+	private static Logger logger = LogManager.getLogger(TexasUtil.class);
 
 	/**
 	 * 获取一个对应级别的可用房间，直接进入
@@ -371,7 +374,7 @@ public class TexasUtil {
 	 */
 	public static void sendMsgToList(List<Player> playerList, String msg) {
 		playerList.parallelStream().forEach(player -> sendMsgToPlayer(player, msg));
-		SystemLog.printlog("toAllPlayers:" + msg);
+		logger.info("toAllPlayers:" + msg);
 	}
 
 	/**
@@ -391,7 +394,7 @@ public class TexasUtil {
 			Session session = p.getSession();
 			if (session != null) {
 				TexasWS.sendText(session, msg);
-				SystemLog.printlog("toOne:" + msg);
+				logger.info("toOne:" + msg);
 			}
 		}
 	}
@@ -399,7 +402,7 @@ public class TexasUtil {
 	public static void sendMsgToOne(Session session, String msg) {
 		if (session != null) {
 			TexasWS.sendText(session, msg);
-			SystemLog.printlog("toOne:" + msg);
+			logger.info("toOne:" + msg);
 		}
 	}
 
@@ -661,7 +664,7 @@ public class TexasUtil {
 			Date costEnd = new Date();
 			long cost = costEnd.getTime() - now.getTime();
 			if (cost > 100) {
-				SystemLog.printPerformance("add robot:" + message + " cost Millisecond" + cost);
+				logger.error("add robot:" + message + " cost Millisecond" + cost);
 			}
 		}
 

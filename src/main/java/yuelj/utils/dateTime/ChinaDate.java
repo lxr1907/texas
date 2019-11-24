@@ -411,7 +411,7 @@ public class ChinaDate {
 	 */
 	// public static void main(String[] args) {
 	// long[] l = calElement(2016, 2, 8);
-	// SystemLog.printlog("农历"+l[0]+"年"+l[1]+"月"+l[2]+"号");
-	// SystemLog.printlog(nStr1[(int) l[1]]+"月"+getChinaDate((int) (l[2])));
+	// logger.info("农历"+l[0]+"年"+l[1]+"月"+l[2]+"号");
+	// logger.info(nStr1[(int) l[1]]+"月"+getChinaDate((int) (l[2])));
 	// }
 }

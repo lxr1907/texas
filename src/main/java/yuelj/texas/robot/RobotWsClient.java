@@ -12,13 +12,16 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import yuelj.entity.PrivateRoom;
 import yuelj.entity.RetMsg;
-import yuelj.utils.logs.SystemLog;
 import yuelj.utils.serialize.JsonUtils;
 
 @ClientEndpoint
 public class RobotWsClient {
+	private Logger logger = LogManager.getLogger(RobotWsClient.class);
 	// 缓冲区最大大小
 	static final int maxSize = 4 * 1024;// ;// 1K
 	static final String urlServer = "ws://127.0.0.1:8080/texas/ws/texas";
@@ -65,7 +68,7 @@ public class RobotWsClient {
 	@OnOpen
 	public void onOpen(Session session) {
 		this.session = session;
-		SystemLog.printlog("Robot Connected to endpoint: " + session.getBasicRemote());
+		logger.info("Robot Connected to endpoint: " + session.getBasicRemote());
 		if (loginOnConnect) {
 			RobotOperationsUtil.robotLogin(this);
 		}
