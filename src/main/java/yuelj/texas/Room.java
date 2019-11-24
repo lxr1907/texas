@@ -246,7 +246,8 @@ public class Room {
 				}
 			}
 			// 总筹码不足一个大盲注的不能进行游戏，踢出房间
-			getWaitPlayers().parallelStream().filter(p -> p.getBodyChips() <= this.getBigBet()).forEach(p -> TexasUtil.outRoom(p));
+			getWaitPlayers().parallelStream().filter(p -> p.getBodyChips() <= this.getBigBet())
+					.forEach(p -> TexasUtil.outRoom(p));
 			// 转移等待列表的玩家进入游戏中玩家列表
 			TexasUtil.movePlayers(this.getWaitPlayers(), this.getIngamePlayers());
 			// 记录玩家座位号
@@ -794,11 +795,15 @@ public class Room {
 		if (playerOpt) {
 			// 2.在没有allin的情况下，如果不是跟注，则下注必须是大盲的整数倍
 			if (chip < player.getBodyChips()) {
-				// 1.不能小于之前下注
+				// 不能小于之前下注,否则强制增加到跟注筹码，不够则allin
 				if ((chip + oldBetThisRound) < thisRoom.getRoundMaxBet()) {
 					logger.error("betchipIn error < getRoundMaxBet() chip:" + chip + "oldBetThisRound:"
 							+ oldBetThisRound + " max:" + thisRoom.getRoundMaxBet());
-					return false;
+					if (thisRoom.getRoundMaxBet() - oldBetThisRound < player.getBodyChips()) {
+						chip = (int) (thisRoom.getRoundMaxBet() - oldBetThisRound);
+					} else {
+						chip = (int) player.getBodyChips();
+					}
 				}
 				if ((chip + oldBetThisRound) != thisRoom.getRoundMaxBet()) {
 					// 本轮已经下注+当前加注-本轮最大下注，必须=大盲注的整数倍

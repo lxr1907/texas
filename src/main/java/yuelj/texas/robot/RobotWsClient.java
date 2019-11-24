@@ -64,6 +64,9 @@ public class RobotWsClient {
 		// 发送文本消息
 		try {
 			session.getBasicRemote().sendText(message);
+		} catch (java.lang.IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
