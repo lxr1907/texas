@@ -79,6 +79,7 @@ public class PrivateRoom implements Serializable {
 		setCommunityCards(room.getCommunityCards());
 		setBetAmount(room.getBetAmount());
 		setOptTimeout(room.getOptTimeout());
+		setRoundMaxBet(room.getRoundMaxBet());
 	}
 
 

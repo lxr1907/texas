@@ -192,6 +192,12 @@ public class RobotOperationsUtil {
 			if (chips > robotClient.getRoomInfo().getRoundMaxBet()) {
 				robotClient.getRoomInfo().setRoundMaxBet(chips.intValue());
 			}
+			for (Player p : robotClient.roomInfo.getIngamePlayers()) {
+				if (p.getSeatNum() == bp.getSeatNum()) {
+					p.setBodyChips(p.getBodyChips() - bp.getInChips());
+					break;
+				}
+			}
 		}
 	}
 
@@ -210,7 +216,7 @@ public class RobotOperationsUtil {
 			e.printStackTrace();
 		}
 		long callNeed = 0;
-		long maxBet = 0;
+		long maxBet = robotClient.getRoomInfo().getRoundMaxBet();
 		long mybet = 0;
 		long bigbet = robotClient.getRoomInfo().getBigBet();
 		// 计算call或check需要的下注
@@ -220,46 +226,38 @@ public class RobotOperationsUtil {
 				if (entry.getValue() != null) {
 					mybet = entry.getValue();
 				}
-			} else {
-				Long oneBet = entry.getValue();
-				if (oneBet != null && oneBet > maxBet) {
-					maxBet = oneBet;
-				}
 			}
 		}
 		callNeed = maxBet - mybet;
 		logger.info("callNeed:" + callNeed + "maxBet:" + maxBet + "myBet:" + mybet);
 		// 获取10到99随机数
 		int randomNum = RandomNumUtil.getNextInt(2);
-		// 一定概率fold
+		// 一定概率加注2倍bigbet
+		int followBet = (int) callNeed;
+		int addBet = (int) bigbet * 2 + (int) callNeed;
 		if (randomNum < 40 && callNeed > 0) {
+			// 一定概率fold
 			fold(robotClient);
 		} else if (randomNum < 80) {
-			int bet = (int) callNeed;
-			if (bet > 0) {
+			if (followBet > 0) {
+				//logger.error("callNeed:" + callNeed + "maxBet:" + maxBet + "myBet:" + mybet);
 				// 可以跟注，跟注
-				betChips(robotClient, bet);
+				betChips(robotClient, followBet);
 			} else {
 				// 可以check的情况下
 				check(robotClient);
 			}
 		} else if (randomNum < 96) {
-			// 一定概率加注2倍
-			int bet = (int) callNeed;
-			if (bet > 0) {
-				bet = bet * 2;
-				// 若加注，则必须等于大盲注的整数倍
-				int times = bet / (int) bigbet;
-				bet = (int) bigbet * times;
-				betChips(robotClient, bet);
+			if (addBet > 0) {
+				betChips(robotClient, addBet);
 			} else {
 				// 可以check的情况下
 				check(robotClient);
 			}
 		} else {
 			// 一定概率allin
-			int bet = (int) robotClient.player.getBodyChips();
-			betChips(robotClient, bet);
+			addBet = (int) robotClient.player.getBodyChips();
+			betChips(robotClient, addBet);
 		}
 	}
 
@@ -284,8 +282,8 @@ public class RobotOperationsUtil {
 	public static void betChips(RobotWsClient robotClient, int chips) {
 		// 当call需要的值大于身上携带
 		if (chips > robotClient.player.getBodyChips()) {
-			logger.info("chips > robotClient.player.getBodyChips()  getBodyChips:"
-					+ robotClient.player.getBodyChips() + "chips" + chips);
+			logger.info("chips > robotClient.player.getBodyChips()  getBodyChips:" + robotClient.player.getBodyChips()
+					+ "chips" + chips);
 			chips = (int) robotClient.player.getBodyChips();
 		}
 		// 下注时减少自己身上的筹码

@@ -797,14 +797,15 @@ public class Room {
 			if (chip < player.getBodyChips()) {
 				// 1.不能小于之前下注
 				if ((chip + oldBetThisRound) < thisRoom.getRoundMaxBet()) {
-					logger.error("betchipIn error < getRoundMaxBet() chip:" + chip + "oldBetThisRound:" + oldBetThisRound
-							+ " max:" + thisRoom.getRoundMaxBet());
+					logger.error("betchipIn error < getRoundMaxBet() chip:" + chip + "oldBetThisRound:"
+							+ oldBetThisRound + " max:" + thisRoom.getRoundMaxBet());
 					return false;
 				}
 				if ((chip + oldBetThisRound) != thisRoom.getRoundMaxBet()) {
+					//本轮已经下注+当前加注必须=大盲注的整数倍
 					if ((chip + oldBetThisRound) % thisRoom.getBigBet() != 0) {
 						logger.error(
-								"betchipIn error % getBigBet() != 0:" + chip + "oldBetThisRound:" + oldBetThisRound);
+								"betchipIn error % bigbet != 0:" + chip + "oldBetThisRound:" + oldBetThisRound+",max:"+thisRoom.getRoundMaxBet());
 						return false;
 					}
 				}
