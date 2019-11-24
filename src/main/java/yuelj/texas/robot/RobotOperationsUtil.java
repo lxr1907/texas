@@ -205,6 +205,7 @@ public class RobotOperationsUtil {
 		long callNeed = 0;
 		long maxBet = 0;
 		long mybet = 0;
+		long bigbet=robotClient.getRoomInfo().getBigBet();
 		// 计算call或check需要的下注
 		for (Map.Entry<Integer, Long> entry : robotClient.roomInfo.getBetRoundMap().entrySet()) {
 			SystemLog.printlog(entry.getKey() + "--->" + entry.getValue());
@@ -224,26 +225,25 @@ public class RobotOperationsUtil {
 		// 获取10到99随机数
 		int randomNum = RandomNumUtil.getNextInt(2);
 		// 一定概率fold
-		if (randomNum < 20 && callNeed > 0) {
+		if (randomNum < 40 && callNeed > 0) {
 			fold(robotClient);
-		} else if (randomNum > 70 && randomNum < 90) {
+		} else if (randomNum < 80) {
 			int bet = (int) callNeed;
 			if (bet > 0) {
 				// 可以跟注，跟注
 				betChips(robotClient, bet);
 			} else {
-				// 可以check的情况下，加一个大盲
-				bet = bet + robotClient.roomInfo.getBigBet();
-				betChips(robotClient, bet);
+				// 可以check的情况下
+				check(robotClient);
 			}
-		} else if (randomNum > 90) {
-			// 一定概率加注3倍
+		} else if (randomNum < 96) {
+			// 一定概率加注2倍
 			int bet = (int) callNeed;
 			if (bet > 0) {
-				bet = bet * 3;
-				if (bet > maxBet) {
-					bet = (int) maxBet;
-				}
+				bet = bet * 2;
+				//若加注，则必须等于大盲注的整数倍
+				int times=bet/(int)bigbet;
+				bet=(int)bigbet*times;
 				betChips(robotClient, bet);
 			} else {
 				// 6倍大盲
@@ -253,17 +253,10 @@ public class RobotOperationsUtil {
 				}
 				betChips(robotClient, bet);
 			}
-		} else if (randomNum > 96) {
+		} else  {
 			// 一定概率allin
 			int bet = (int) robotClient.player.getBodyChips();
 			betChips(robotClient, bet);
-		} else {
-			// 可以check，则check
-			if (callNeed <= 0) {
-				check(robotClient);
-			} else {
-				betChips(robotClient, (int) callNeed);
-			}
 		}
 	}
 
