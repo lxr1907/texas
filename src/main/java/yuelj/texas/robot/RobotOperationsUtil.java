@@ -240,7 +240,7 @@ public class RobotOperationsUtil {
 			fold(robotClient);
 		} else if (randomNum < 80) {
 			if (followBet > 0) {
-				//logger.error("callNeed:" + callNeed + "maxBet:" + maxBet + "myBet:" + mybet);
+				logger.error("callNeed:" + callNeed + "maxBet:" + maxBet + "myBet:" + mybet+",followBet:"+followBet);
 				// 可以跟注，跟注
 				betChips(robotClient, followBet);
 			} else {
@@ -249,6 +249,7 @@ public class RobotOperationsUtil {
 			}
 		} else if (randomNum < 96) {
 			if (addBet > 0) {
+				logger.error("callNeed:" + callNeed + "maxBet:" + maxBet + "myBet:" + mybet+",addBet:"+addBet);
 				betChips(robotClient, addBet);
 			} else {
 				// 可以check的情况下

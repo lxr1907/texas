@@ -32,7 +32,6 @@ import yuelj.service.GameLogService;
 import yuelj.service.PlayerService;
 import yuelj.service.SystemLogService;
 import yuelj.service.impl.LobbyServiceImpl;
-import yuelj.texas.robot.RobotOperationsUtil;
 import yuelj.utils.SpringUtil;
 import yuelj.utils.dateTime.DateUtil;
 import yuelj.utils.serialize.JsonUtils;
@@ -45,7 +44,7 @@ import yuelj.utils.serialize.JsonUtils;
  */
 @Component
 public class Room {
-	private static Logger logger = LogManager.getLogger(RobotOperationsUtil.class);
+	private static Logger logger = LogManager.getLogger(Room.class);
 	/**
 	 * 设置初始化房间数量
 	 */
@@ -183,7 +182,7 @@ public class Room {
 	/**
 	 * 本轮游戏玩家下的最大注倍数，第一轮为1，一共3种，1,2,4
 	 */
-	protected int roundMaxBet = 1;
+	protected int roundMaxBet = bigBet;
 	/**
 	 * 存放座位号的栈(空闲座位)
 	 */
@@ -427,8 +426,8 @@ public class Room {
 			betMap.clear();
 			// 清除betRoundMap
 			betRoundMap.clear();
-			// 清除每轮最大加注倍数
-			roundMaxBet = 1;
+			// 每局开始最大下注为一个大盲
+			roundMaxBet = bigBet;
 			// 清除手牌
 			for (Player p : ingamePlayers) {
 				p.setHandPokers(null);
@@ -802,10 +801,10 @@ public class Room {
 					return false;
 				}
 				if ((chip + oldBetThisRound) != thisRoom.getRoundMaxBet()) {
-					//本轮已经下注+当前加注必须=大盲注的整数倍
-					if ((chip + oldBetThisRound) % thisRoom.getBigBet() != 0) {
-						logger.error(
-								"betchipIn error % bigbet != 0:" + chip + "oldBetThisRound:" + oldBetThisRound+",max:"+thisRoom.getRoundMaxBet());
+					// 本轮已经下注+当前加注-本轮最大下注，必须=大盲注的整数倍
+					if ((chip + oldBetThisRound - thisRoom.getRoundMaxBet()) % thisRoom.getBigBet() != 0) {
+						logger.error("betchipIn error % bigbet != 0:" + chip + "oldBetThisRound:" + oldBetThisRound
+								+ ",max:" + thisRoom.getRoundMaxBet());
 						return false;
 					}
 				}
@@ -818,8 +817,8 @@ public class Room {
 				cancelTimer();
 			}
 			// 设置本轮最大加注
-			if (chip > thisRoom.getRoundMaxBet()) {
-				thisRoom.setRoundMaxBet(chip);
+			if ((int) (chip + oldBetThisRound) > thisRoom.getRoundMaxBet()) {
+				thisRoom.setRoundMaxBet((int) (chip + oldBetThisRound));
 				// 加注额大于之前，则所有玩家重新加注
 				donePlayerList.clear();
 			}
