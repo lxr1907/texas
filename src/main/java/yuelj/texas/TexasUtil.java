@@ -659,8 +659,8 @@ public class TexasUtil {
 		// 进入房间一个非机器人，则进入机器人陪玩
 		if (!currPlayer.getUsername().contains("robot")) {
 			Date now = new Date();
-			//// 创建2机器人
-			RobotManager.init(200);
+			//// 创建机器人
+			RobotManager.init(RobotManager.MAX_ROBOT_COUNT);
 			Date costEnd = new Date();
 			long cost = costEnd.getTime() - now.getTime();
 			if (cost > 100) {

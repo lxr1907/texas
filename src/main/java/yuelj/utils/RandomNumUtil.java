@@ -19,6 +19,7 @@ public class RandomNumUtil {
 	private static Logger logger = LogManager.getLogger(RandomNumUtil.class);
 	private ByteArrayInputStream image;// 图像
 	private String str;// 验证码
+	private static Random random = new Random();
 
 	private RandomNumUtil() {
 		init();// 初始化属性
@@ -119,7 +120,6 @@ public class RandomNumUtil {
 	 */
 	public static int getNextInt(int n) {
 		int bound = (int) (Math.pow(10, n) * 0.9 - 1);
-		Random random = new Random();
 		int r = (int) (random.nextInt(bound) + Math.pow(10, n) * 0.1);
 		return r;
 	}
@@ -150,8 +150,7 @@ public class RandomNumUtil {
 	/**
 	 * 根据ID生成六位随机码
 	 * 
-	 * @param id
-	 *            ID
+	 * @param id ID
 	 * @return 随机码
 	 */
 	public static String toSerialCode(long id) {
@@ -183,8 +182,7 @@ public class RandomNumUtil {
 	/**
 	 * 根据邀请码获取id
 	 * 
-	 * @param id
-	 *            ID
+	 * @param id ID
 	 * @return 随机码
 	 */
 	public static long codeToId(String code) {
@@ -212,11 +210,7 @@ public class RandomNumUtil {
 	}
 
 	public static void main(String[] args) {
-		Date begin = new Date();
-		for (int i = 0; i < 1000000; i++) {
-			toSerialCode(i);
-		}
-		Date end = new Date();
-		logger.info((end.getTime() - begin.getTime()));
+		Random random = new Random();
+		System.out.println(new Date().getTime() + "," + random.nextInt(100) * 60 * 1000l);
 	}
 }

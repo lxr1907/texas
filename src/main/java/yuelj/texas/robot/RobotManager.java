@@ -9,6 +9,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class RobotManager implements Runnable {
 	private int number;
 
+	/**
+	 * 机器人列表
+	 */
+	private static List<RobotWsClient> robotClientList = new CopyOnWriteArrayList<>();
+	/**
+	 * 最多允许的机器人个数
+	 */
+	public static final int MAX_ROBOT_COUNT = 100;
+	
 	RobotManager(int number) {
 		this.number = number;
 	}
@@ -28,14 +37,6 @@ public class RobotManager implements Runnable {
 		}
 	}
 
-	/**
-	 * 机器人列表
-	 */
-	private static List<RobotWsClient> robotClientList = new CopyOnWriteArrayList<>();
-	/**
-	 * 最多允许的机器人个数
-	 */
-	private static final int MAX_ROBOT_COUNT = 2000;
 
 	public synchronized static void init(int number) {
 		// 创建机器人线程

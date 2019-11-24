@@ -24,7 +24,7 @@ public class RobotOperationsUtil {
 	private static final String robotAccountPasswordPre = "A0858374F309F2DFA1F46EC94DEA6EBE";
 	private static ConcurrentLinkedQueue<Integer> robotAccountQueue = new ConcurrentLinkedQueue<Integer>();
 	static {
-		// 初始化120个机器人id
+		// 初始化2000个机器人id
 		for (int i = 0; i < 2000; i++) {
 			robotAccountQueue.offer(i);
 		}
@@ -201,6 +201,18 @@ public class RobotOperationsUtil {
 		}
 	}
 
+	/**
+	 * 游戏结束时，判断自己是否该退出房间了
+	 * 
+	 * @param robotClient
+	 * @param retMsg
+	 */
+	public static void onGameEnd(RobotWsClient robotClient, RetMsg retMsg) {
+		// 当该机器人的退出时间到，则退出房间
+		if (robotClient.getLogOutTime().before(new Date())) {
+			robotOut(robotClient);
+		}
+	}
 	/**
 	 * 轮到机器人操作
 	 * 

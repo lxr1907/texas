@@ -3,6 +3,8 @@ package yuelj.texas.robot;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Date;
+import java.util.Random;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.ContainerProvider;
@@ -37,6 +39,9 @@ public class RobotWsClient {
 	public Session session;
 	public RobotPlayer player;
 	public PrivateRoom roomInfo;
+	//设定机器人的退出时间为1到15分钟随机
+	Random random = new Random();
+	public Date logOutTime = new Date(new Date().getTime() + random.nextInt(15) * 60 * 1000l);
 
 	public boolean loginOnConnect;
 
@@ -93,6 +98,9 @@ public class RobotWsClient {
 			if (retMsg.getC().equals("onPlayerBet")) {
 				RobotOperationsUtil.onPlayerBet(this, retMsg);
 			}
+			if (retMsg.getC().equals("onGameEnd")) {
+				RobotOperationsUtil.onGameEnd(this, retMsg);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -133,5 +141,13 @@ public class RobotWsClient {
 
 	public void setLoginOnConnect(boolean loginOnConnect) {
 		this.loginOnConnect = loginOnConnect;
+	}
+
+	public Date getLogOutTime() {
+		return logOutTime;
+	}
+
+	public void setLogOutTime(Date logOutTime) {
+		this.logOutTime = logOutTime;
 	}
 }
