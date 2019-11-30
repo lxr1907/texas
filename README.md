@@ -2,11 +2,13 @@
 
 #### 介绍
 一个德州扑克游戏
-pc端用html+js+canvas，服务端java13 springboot2.2 websocket
+pc前端用html+js+canvas，服务端java13 springboot2.2 websocket
 
 
 #### 软件架构
-软件架构说明
+1服务端java13 springboot2.2 websocket
+2前端pcweb html+js+canvas
+3数据库mysql，datasql目录下是sql脚本
 
 
 #### 安装教程
