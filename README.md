@@ -12,14 +12,15 @@ pc前端用html+js+canvas，服务端java13 springboot2.2 websocket
 
 
 #### 安装教程
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1. 安装mysql，memcache
+2.执行datasql目录下的数据库表初始化脚本
+3.  java项目中 mvn update
+4.  mvn install
+5.  启动java -jar TexasApplications.jar
 
 #### 使用说明
 
-1.  xxxx
+1.  根据配置文件配端口，访问http://127.0.0.1:8080/texas/indexTexas.html
 2.  xxxx
 3.  xxxx
 
