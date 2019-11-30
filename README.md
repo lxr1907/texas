@@ -3,7 +3,7 @@
 #### 介绍
 一个德州扑克游戏
 pc前端用html+js+canvas，服务端java13 springboot2.2 websocket
-访问http://120.26.217.116:8080/texas/texasIndex.html查看效果
+查看效果访问http://120.26.217.116:8080/texas/texasIndex.html
 
 #### 软件架构
 1服务端java13 springboot2.2 websocket
@@ -22,8 +22,8 @@ pc前端用html+js+canvas，服务端java13 springboot2.2 websocket
 #### 使用说明
 
 1.  本地根据需要改后端配置文件texas/src/main/resources/application-local.properties
-    比如本地地址：http://127.0.0.1:8080/texas/texasIndex.html
-2.  前端websocket链接地址配置，根据自己需要进行修改：
+2.   本地地址：http://127.0.0.1:8080/texas/texasIndex.html
+3.  前端websocket链接地址配置，根据自己需要进行修改：
 texas/src/main/resources/static/texasJS/message.js
 var wsip = "ws://127.0.0.1:8080/texas/ws/texas";
 var wsip_prod = "ws://120.26.217.116:8080/texas/ws/texas";
