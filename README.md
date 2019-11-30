@@ -17,7 +17,7 @@ pc前端用html+js+canvas，服务端java13 springboot2.2 websocket
 2. 执行 texas/databasesql目录下的数据库表初始化脚本
 3.  java项目中 mvn update
 4.  mvn install
-5.  启动java -jar TexasApplications.jar
+5.  启动java -jar texas.jar
 
 #### 使用说明
 
