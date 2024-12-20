@@ -2,17 +2,15 @@
 
 ### 介绍
 一个德州扑克游戏
-pc前端用html+js+canvas，服务端java13 springboot 3.3.5  websocket
-查看效果访问http://127.0.0.1:8080/texas/texasIndex.html
-
+a texas game
 ### 软件架构
-#### 服务端
+#### 服务端server
 java13 springboot3.3.5 websocket
-#### 前端
+#### 前端web
 html+js+canvas
-#### 数据库
+#### 数据库database
 mysql
-#### 缓存
+#### 缓存cache
 memcache
 
 
