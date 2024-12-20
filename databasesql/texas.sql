@@ -10,11 +10,11 @@ Target Server Type    : MYSQL
 Target Server Version : 50634
 File Encoding         : 65001
 
-Date: 2019-11-23 12:18:34
+Date: 2024-11-21 10:44:00
 */
 
 SET FOREIGN_KEY_CHECKS=0;
-
+use texas;
 -- ----------------------------
 -- Table structure for game_log
 -- ----------------------------
@@ -107,13 +107,21 @@ CREATE TABLE `transaction_log` (
 -- Procedure structure for add_chips
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `add_chips`;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `add_chips`()
+CREATE DEFINER=`root`@`%` PROCEDURE `add_chips`(IN input_username VARCHAR(2000))
 BEGIN
-	declare usern varchar(2000);
-	declare chips varchar(2000);
-	insert into player_chips_log  VALUES(null,usern,chips);
-	update player p set p.chips=chips+100 where p.username=usern;
-END
-;;
-DELIMITER ;
+    DECLARE current_chips INT DEFAULT 0;
+
+    -- 获取用户当前的筹码数
+    SELECT p.chips INTO current_chips
+    FROM player p
+    WHERE p.username = input_username;
+
+    -- 插入日志记录
+    INSERT INTO player_chips_log (username, chips)
+    VALUES (input_username, current_chips);
+
+    -- 更新用户的筹码数
+    UPDATE player p
+    SET p.chips = current_chips + 100
+    WHERE p.username = input_username;
+END;
