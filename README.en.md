@@ -1,29 +1,44 @@
-# texas
+# Texas
+Introduction
+A Texas Hold'em game.
 
-#### Description
-一个德州扑克游戏
-pc端用html+js+canvas，服务端java13 springboot2.2 websocket
+## Software Architecture
+#### Server-side:
 
+Java 13
+Spring Boot 3.3.5
+WebSocket
 
-#### Software Architecture
-Software architecture description
+#### Frontend:
 
-#### Installation
+HTML + JavaScript + Canvas
+#### Database:
+MySQL
+#### Cache:
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+Memcache
 
-#### Instructions
+#### Installation Guide
+1.Install MySQL and Memcache.
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+2.Execute the database table initialization script located in texas/databasesql directory.
 
-#### Contribution
+3.In the Java project, run mvn update.
 
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
+4.Run mvn install.
+Start the application with
 
+java -jar texas.jar.
+
+#### Usage Instructions
+
+Modify the backend configuration file as needed: src/main/resources/application-local.properties.
+
+Local address: http://127.0.0.1:8080/texas/texasIndex.html.
+
+Configure the frontend WebSocket connection address as needed:
+
+In texas/src/main/resources/static/texasJS/message.js, update the following variables:
+
+var wsip = "ws://127.0.0.1:8080/texas/ws/texas";
+var wsip_prod = "ws://127.0.0.1:8080/texas/ws/texas";
