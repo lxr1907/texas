@@ -2,11 +2,11 @@
 
 #### 介绍
 一个德州扑克游戏
-pc前端用html+js+canvas，服务端java13 springboot2.2 websocket
-查看效果访问http://120.26.217.116:8080/texas/texasIndex.html
+pc前端用html+js+canvas，服务端java13 springboot 3.3.5  websocket
+查看效果访问http://127.0.0.1:8080/texas/texasIndex.html
 
 #### 软件架构
-1服务端java13 springboot2.2 websocket
+1服务端java13 springboot3.3.5 websocket
 2前端pcweb html+js+canvas
 3数据库mysql
 4缓存memcache
