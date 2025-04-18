@@ -1,17 +1,3 @@
-/*
-Navicat MySQL Data Transfer
-
-Source Server         : 120.26.217.116
-Source Server Version : 50634
-Source Host           : 120.26.217.116:3306
-Source Database       : texas
-
-Target Server Type    : MYSQL
-Target Server Version : 50634
-File Encoding         : 65001
-
-Date: 2024-11-21 10:44:00
-*/
 
 SET FOREIGN_KEY_CHECKS=0;
 use texas;
