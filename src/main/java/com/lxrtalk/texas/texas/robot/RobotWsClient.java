@@ -23,7 +23,7 @@ import com.lxrtalk.texas.utils.serialize.JsonUtils;
 
 @ClientEndpoint
 public class RobotWsClient {
-	private Logger logger = LogManager.getLogger(RobotWsClient.class);
+	private static Logger logger = LogManager.getLogger(RobotWsClient.class);
 	// 缓冲区最大大小
 	static final int maxSize = 4 * 1024;// ;// 1K
 	static final String urlServer = "ws://127.0.0.1:8080/texas/ws/texas";
@@ -33,7 +33,7 @@ public class RobotWsClient {
 			uri = new URI(urlServer);
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("",e);
 		}
 	}
 	public Session session;
@@ -56,7 +56,7 @@ public class RobotWsClient {
 			// 可以缓冲的传入文本消息的最大长度
 			session.setMaxTextMessageBufferSize(maxSize);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 	}
 
@@ -66,10 +66,10 @@ public class RobotWsClient {
 			session.getBasicRemote().sendText(message);
 		} catch (java.lang.IllegalStateException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("",e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("",e);
 		}
 	}
 
@@ -105,13 +105,13 @@ public class RobotWsClient {
 				RobotOperationsUtil.onGameEnd(this, retMsg);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 	}
 
 	@OnError
 	public void onError(Throwable e) {
-		e.printStackTrace();
+		logger.error("",e);
 	}
 
 	public PrivateRoom getRoomInfo() {

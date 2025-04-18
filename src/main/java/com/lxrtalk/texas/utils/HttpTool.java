@@ -388,13 +388,13 @@ public final class HttpTool {
 				try {
 					in.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error("",e);
 				}
 			if (out != null)
 				try {
 					out.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error("",e);
 				}
 		}
 	}

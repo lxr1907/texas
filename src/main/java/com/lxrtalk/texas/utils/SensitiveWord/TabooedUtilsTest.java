@@ -79,7 +79,7 @@ public class TabooedUtilsTest {
 		try {
 			countDownLatch.await();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 
 		executor.shutdown();

@@ -33,7 +33,7 @@ public class TexasWS {
     // 缓冲区最大大小
     static final int maxSize = 1024;// 1 * 1024;// 1K
 
-    private Logger logger = LogManager.getLogger(TexasWS.class);
+    private static Logger logger = LogManager.getLogger(TexasWS.class);
 
     @Autowired
     private PlayerService playerService;
@@ -123,7 +123,7 @@ public class TexasWS {
     public void onError(Session session, Throwable e) {
         onConnectLost(session);
         logger.info(" connection error: " + e.getMessage());
-        e.printStackTrace();
+        logger.error("",e);
     }
 
     public void onConnectLost(Session session) {
@@ -151,7 +151,7 @@ public class TexasWS {
                 try {
                     session.getBasicRemote().sendText(text);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("",e);
                 }
             }
         }

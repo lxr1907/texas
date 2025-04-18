@@ -9,6 +9,9 @@ public class BaseEntity implements Serializable {
 	@Expose
 	public String id;
 
+	/**
+	 * 消息类型
+	 */
 	@Expose
 	public int c;
 

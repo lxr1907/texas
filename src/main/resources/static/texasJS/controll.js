@@ -185,7 +185,7 @@ function onEnterRoom(e, data) {
         winnerList = roomInfo.winPlayersMap;
         drawWinners();
     } else {
-        document.getElementById('messages').innerHTML = '进入房间失败';
+        document.getElementById('messages').innerHTML = '进入房间失败,'+data.message;
     }
 }
 // 本人退出房间

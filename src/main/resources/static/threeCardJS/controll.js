@@ -218,7 +218,7 @@ function onEnterRoom(e, data) {
         winnerList = roomInfo.winPlayersMap;
         drawWinners();
     } else {
-        logErrorMessage('进入房间失败');
+        logErrorMessage('进入房间失败,'+data.message);
     }
 }
 // 本人退出房间

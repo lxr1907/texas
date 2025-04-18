@@ -580,7 +580,7 @@ public class Room {
 		try {
 			Thread.sleep(milsecond);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 		// 不在等待开始，则返回
 		if (!(getGamestate().get() == 0)) {
@@ -679,7 +679,7 @@ public class Room {
 			}
 			getWaitPlayers().add(player);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 		// 判断下一步是否round结束，endgame或下个玩家操作nextturn
 		endRoundOrNextTurn();
@@ -742,7 +742,7 @@ public class Room {
 			TexasUtil.sendMsgToPlayerByRoom(this, JsonUtils.toJson(retMsg, RetMsg.class));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 		// 判断下一步是否round结束，endgame或下个玩家操作nextturn
 		endRoundOrNextTurn();
@@ -839,7 +839,7 @@ public class Room {
 			// 筹码入池，所带筹码扣除
 			player.setBodyChips(player.getBodyChips() - chip);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 		if (playerOpt) {
 			try {
@@ -856,7 +856,7 @@ public class Room {
 				// 通知房间中玩家有人下注了
 				TexasUtil.sendMsgToPlayerByRoom(thisRoom, msg);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("",e);
 			}
 			// 判断下一步是否round结束，endgame或下个玩家操作nextturn
 			endRoundOrNextTurn();
@@ -994,7 +994,7 @@ public class Room {
 						}
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("",e);
 					SystemLogService syslogService = (SystemLogService) SpringUtil.getBean("systemLogService");
 					SystemLogEntity entity = new SystemLogEntity();
 					entity.setType("roomTimer");

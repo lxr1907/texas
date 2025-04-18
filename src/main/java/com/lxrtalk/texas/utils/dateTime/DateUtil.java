@@ -272,7 +272,7 @@ public class DateUtil {
 		try {
 			dateStr = sdf2.format(date);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 		return dateStr;
 	}
@@ -289,7 +289,7 @@ public class DateUtil {
 		try {
 			dateStr = sdf2.format(date);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 		return dateStr;
 	}
@@ -308,7 +308,7 @@ public class DateUtil {
 			d1 = df.parse(dateStr);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("",e);
 		}
 		return d1;
 	}
@@ -327,7 +327,7 @@ public class DateUtil {
 			d1 = df.parse(dateStr);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("",e);
 		}
 		return d1;
 	}

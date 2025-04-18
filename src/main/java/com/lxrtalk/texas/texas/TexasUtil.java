@@ -660,7 +660,7 @@ public class TexasUtil {
 		if (!currPlayer.getUsername().contains("robot")) {
 			Date now = new Date();
 			//// 创建机器人
-			RobotManager.init(RobotManager.MAX_ROBOT_COUNT);
+			RobotManager.start(RobotManager.MAX_ROBOT_COUNT);
 			Date costEnd = new Date();
 			long cost = costEnd.getTime() - now.getTime();
 			if (cost > 100) {

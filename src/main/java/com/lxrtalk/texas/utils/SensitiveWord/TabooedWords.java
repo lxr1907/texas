@@ -1,5 +1,9 @@
 package com.lxrtalk.texas.utils.SensitiveWord;
 
+import com.lxrtalk.texas.texas.robot.RobotWsClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +17,7 @@ import java.util.HashSet;
  * @author lxr
  */
 public class TabooedWords {
+	private static Logger logger = LogManager.getLogger(TabooedWords.class);
 
 	// private static final Logger logger =
 	// LoggerFactory.getLogger(TabooedWords.class);
@@ -55,7 +60,7 @@ public class TabooedWords {
 					reader.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("",e);
 			}
 			// FileUtils.close(reader);
 		}

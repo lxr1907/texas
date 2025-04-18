@@ -511,7 +511,7 @@ public class ThreeCardRoom extends Room {
 				// 判断是否可以开始下一局
 				checkStart(1000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.error("",e);
 			}
 
 		}

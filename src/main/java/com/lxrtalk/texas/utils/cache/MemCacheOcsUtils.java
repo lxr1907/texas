@@ -20,7 +20,7 @@ public class MemCacheOcsUtils {
 			try {
 				cache = new MemcachedClient(new BinaryConnectionFactory(), AddrUtil.getAddresses(host + ":" + port));
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error("",e);
 			}
 		}
 		return cache;
@@ -44,7 +44,7 @@ public class MemCacheOcsUtils {
 			logger.error("memcached set key:" + key + ",value:" + logstr);
 		} catch (Exception e) {
 			logger.error("memcached error set key:" + key + ",value:" + value);
-			e.printStackTrace();
+			logger.error("",e);
 			cache = null;
 		}
 	}
@@ -76,7 +76,7 @@ public class MemCacheOcsUtils {
 			// logstr + "time:" + time);
 		} catch (Exception e) {
 			logger.error("memcached error set key:" + key + ",value:" + value);
-			e.printStackTrace();
+			logger.error("",e);
 			cache = null;
 		}
 	}
@@ -105,7 +105,7 @@ public class MemCacheOcsUtils {
 			}
 		} catch (Exception e) {
 			cache.set(key, 0, "");
-			e.printStackTrace();
+			logger.error("",e);
 			cache = null;
 			return null;
 		}
@@ -137,7 +137,7 @@ public class MemCacheOcsUtils {
 			logger.error("Get memcache:" + cache.get("key-1"));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 		if (cache != null) {
 			cache.shutdown();

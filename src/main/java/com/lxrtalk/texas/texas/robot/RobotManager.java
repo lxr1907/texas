@@ -1,59 +1,53 @@
 package com.lxrtalk.texas.texas.robot;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class RobotManager implements Runnable {
-	private int number;
+public class RobotManager {
+    private static final Logger logger = LogManager.getLogger(RobotManager.class);
 
-	/**
-	 * 机器人列表
-	 */
-	private static List<RobotWsClient> robotClientList = new CopyOnWriteArrayList<>();
-	/**
-	 * 最多允许的机器人个数
-	 */
-	public static final int MAX_ROBOT_COUNT = 100;
-	
-	RobotManager(int number) {
-		this.number = number;
-	}
+    /**
+     * 机器人列表
+     */
+    private static List<RobotWsClient> robotClientList = new CopyOnWriteArrayList<>();
+    /**
+     * 最多允许的机器人个数
+     */
+    public static final int MAX_ROBOT_COUNT = 2;
 
-	public void run() {
-		if (robotClientList.size() < MAX_ROBOT_COUNT) {
-			for (int i = 0; i < number; i++) {
-				RobotWsClient client = new RobotWsClient(true);
-				robotClientList.add(client);
-				try {
-					Thread.sleep(10l);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-
-	public synchronized static void init(int number) {
-		// 创建机器人线程
-		RobotManager m1 = new RobotManager(number);
-		Thread t1 = new Thread(m1);
-		t1.start();
-	}
-
-	public static void main(String[] args) {
-		RobotWsClient client = new RobotWsClient(true);
-		robotClientList.add(client);
-		try {
-			new BufferedReader(new InputStreamReader(System.in)).readLine();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+    public static void start(int number) {
+        // 创建一个单线程的线程池
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(() -> {
+            if (robotClientList.size() < MAX_ROBOT_COUNT) {
+                for (int i = 0; i < number; i++) {
+                    if (robotClientList.size() >= MAX_ROBOT_COUNT) {
+                        break;
+                    }
+                    RobotWsClient client = new RobotWsClient(true);
+                    robotClientList.add(client);
+                    try {
+                        // 修正 long 字面量，将 100l 改为 100L
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException e) {
+                        // 建议使用日志记录异常
+                        // 这里只是示例，实际使用时需要导入日志库并初始化 logger
+                        // logger.error("Thread sleep interrupted", e);
+                        logger.error("",e);
+                    }
+                }
+            }
+            // 关闭线程池
+            executorService.shutdown();
+        });
+    }
 
 }

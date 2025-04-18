@@ -362,7 +362,7 @@ public class StringUtil {
 			return java.net.URLDecoder.decode(str, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("",e);
 			return "";
 		}
 	}
