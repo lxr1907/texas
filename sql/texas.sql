@@ -1,4 +1,4 @@
-
+CREATE DATABASE `texas` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 SET FOREIGN_KEY_CHECKS=0;
 use texas;
 -- ----------------------------
