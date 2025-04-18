@@ -9,7 +9,7 @@ import com.lxrtalk.texas.dao.SystemLogDao;
 import com.lxrtalk.texas.entity.SystemLogEntity;
 import com.lxrtalk.texas.service.SystemLogService;
 
-@Service("SystemLogServiceImpl")
+@Service("systemLogService")
 public class SystemLogServiceImpl implements SystemLogService {
 	@Autowired
 	private SystemLogDao dao;

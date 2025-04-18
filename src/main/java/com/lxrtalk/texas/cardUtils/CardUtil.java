@@ -1,12 +1,11 @@
 package com.lxrtalk.texas.cardUtils;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.*;
 
+/**
+ * 德州卡牌算法
+ */
 public class CardUtil {
-    private static final Logger logger = LogManager.getLogger(CardUtil.class);
     // 牌型枚举
     public enum HandRank {
         HIGH_CARD(0), PAIR(1), TWO_PAIRS(2), THREE_OF_A_KIND(3), STRAIGHT(4), FLUSH(5),

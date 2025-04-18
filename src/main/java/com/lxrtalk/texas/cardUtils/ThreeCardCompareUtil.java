@@ -3,11 +3,13 @@ package com.lxrtalk.texas.cardUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 欢乐拼三张
+ */
 public class ThreeCardCompareUtil {
 	/**
 	 * 获取欢乐拼三张的牌型，写在数组最后一位
-	 * 
-	 * @param list
+	 *
 	 * @return
 	 */
 	public static List<Integer> getCardsGroupType(List<Integer> listOld) {

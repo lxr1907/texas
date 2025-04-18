@@ -17,6 +17,7 @@ import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -30,14 +31,22 @@ import java.io.IOException;
 @Component
 public class TexasWS {
     // 缓冲区最大大小
-    static final int maxSize = 256;// 1 * 1024;// 1K
+    static final int maxSize = 1024;// 1 * 1024;// 1K
 
     private Logger logger = LogManager.getLogger(TexasWS.class);
+
+    @Autowired
+    private PlayerService playerService;
+    @Autowired
+    private LobbyService lobbyService;
+    @Autowired
+    private RoomService roomService;
+    @Autowired
+    private SystemLogService systemLogService;
 
     @OnMessage
     public void onMessage(String message, Session session) throws IOException, InterruptedException {
         logger.info("onMessage:" + message);
-        // onMessageDoReflect(message, session);
         onMessageDo(message, session);
     }
 
@@ -47,49 +56,47 @@ public class TexasWS {
         try {
             switch (c) {
                 case 0:// 0注册
-                    ((PlayerService) SpringUtil.getBean("playerService")).register(session, message);
+                    playerService.register(session, message);
                     break;
                 case 1:// 1登录
-                    ((PlayerService) SpringUtil.getBean("playerService")).login(session, message);
+                    playerService.login(session, message);
                     break;
                 case 2:// 2进入房间
-                    ((RoomService) SpringUtil.getBean("roomService")).inRoom(session, message);
+                    roomService.inRoom(session, message);
                     break;
                 case 3:// 3退出房间
-                    ((RoomService) SpringUtil.getBean("roomService")).outRoom(session, message);
+                    roomService.outRoom(session, message);
                     break;
                 case 4:// 4坐下
-                    ((PlayerService) SpringUtil.getBean("playerService")).sitDown(session, message);
+                    playerService.sitDown(session, message);
                     break;
                 case 5:// 5站起
-                    ((PlayerService) SpringUtil.getBean("playerService")).standUp(session, message);
+                    playerService.standUp(session, message);
                     break;
                 case 6:// 6过牌
-                    ((PlayerService) SpringUtil.getBean("playerService")).check(session, message);
+                    playerService.check(session, message);
                     break;
                 case 7:// 7下注
-                    ((PlayerService) SpringUtil.getBean("playerService")).betChips(session, message);
+                    playerService.betChips(session, message);
                     break;
                 case 8:// 8弃牌
-                    ((PlayerService) SpringUtil.getBean("playerService")).fold(session, message);
+                    playerService.fold(session, message);
                     break;
                 case 9:// 9获取排行榜
-                    ((LobbyService) SpringUtil.getBean("lobbyService")).getRankList(session, message);
+                    lobbyService.getRankList(session, message);
                     break;
                 case 10:// 10查看自己的手牌（拼三张）
-                    ((RoomService) SpringUtil.getBean("roomService")).lookCards(session, message);
+                    roomService.lookCards(session, message);
                     break;
                 case 11:// 11和下家比牌（拼三张）
-                    ((RoomService) SpringUtil.getBean("roomService")).compareCards(session, message);
+                    roomService.compareCards(session, message);
                     break;
                 case 12:// 12发送表情或消息
-                    ((RoomService) SpringUtil.getBean("roomService")).sendMessage(session, message);
+                    roomService.sendMessage(session, message);
                     break;
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-            SystemLogService syslogService = (SystemLogService) SpringUtil.getBean("SystemLogServiceImpl");
             SystemLogEntity entity = new SystemLogEntity();
             entity.setType(c + "");
             entity.setOperation(message);
@@ -103,37 +110,10 @@ public class TexasWS {
             }
             entity.setContent(e.getCause() + errorMessage);
             entity.setDatetime(DateUtil.nowDatetime());
-            syslogService.insertSystemLog(entity);
+            systemLogService.insertSystemLog(entity);
             String retMsg = "{\"c\":\"onException\",\"state\":0,\"message\":\"系统异常" + errorMessage + "\"}";
             sendText(session, retMsg);
-            logger.info(e.getCause() + errorMessage);
-        }
-    }
-
-    public void onMessageDoReflect(String message, Session session) {
-        String ctrl[] = getCtrl(message);
-        try {
-            BeanUtil.invokeMethod(SpringUtil.getBean(ctrl[0]), ctrl[1], session, message);
-        } catch (Exception e) {
-            e.printStackTrace();
-            SystemLogService syslogService = (SystemLogService) SpringUtil.getBean("SystemLogServiceImpl");
-            SystemLogEntity entity = new SystemLogEntity();
-            entity.setType(ctrl[1]);
-            entity.setOperation(message);
-            StackTraceElement[] eArray = e.getCause().getStackTrace();
-            String errorMessage = "";
-            for (int i = 0; i < eArray.length; i++) {
-                String className = e.getCause().getStackTrace()[i].getClassName();
-                String MethodName = e.getCause().getStackTrace()[i].getMethodName();
-                int LineNumber = e.getCause().getStackTrace()[i].getLineNumber();
-                errorMessage = errorMessage + "\n---" + className + "." + MethodName + ",line:" + LineNumber;
-            }
-            entity.setContent(e.getCause() + errorMessage);
-            entity.setDatetime(DateUtil.nowDatetime());
-            syslogService.insertSystemLog(entity);
-            String retMsg = "{\"c\":\"onException\",\"state\":0,\"message\":\"系统异常" + errorMessage + "\"}";
-            sendText(session, retMsg);
-            logger.info(e.getCause() + errorMessage);
+            logger.error("onMessageDo", e);
         }
     }
 
@@ -173,9 +153,6 @@ public class TexasWS {
 
     /**
      * 发送文本消息
-     *
-     * @param session
-     * @param text
      */
     public static void sendText(Session session, String text) {
         if (session == null) {
@@ -190,18 +167,6 @@ public class TexasWS {
                 }
             }
         }
-    }
-
-    /**
-     * [类的别名 ,方法名]
-     *
-     * @param message
-     * @return
-     */
-    private String[] getCtrl(String message) {
-        BaseEntity be = JsonUtils.fromJson(message, BaseEntity.class);
-        int c = be.getC();
-        return CtrlList.clist.get(c);
     }
 
 }

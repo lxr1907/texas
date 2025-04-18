@@ -995,7 +995,7 @@ public class Room {
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
-					SystemLogService syslogService = (SystemLogService) SpringUtil.getBean("SystemLogServiceImpl");
+					SystemLogService syslogService = (SystemLogService) SpringUtil.getBean("systemLogService");
 					SystemLogEntity entity = new SystemLogEntity();
 					entity.setType("roomTimer");
 					entity.setOperation("roomTimer");
@@ -1275,56 +1275,4 @@ public class Room {
 		this.type = type;
 	}
 
-//	public static void main(String[] args) {
-//		testSumBetPool();
-//		// testCompareCardsToWinList();
-//	}
-//
-//	public static void testSumBetPool() {
-//		// 奖池列表
-//		List<BetPool> betPoolList = new ArrayList<BetPool>();
-//		Map<Integer, Long> betMap = new LinkedHashMap<>();
-//		List<Player> ingamePlayers = new ArrayList<Player>();
-//		for (int i = 0; i < 10; i++) {
-//			Player p = new Player();
-//			p.setSeatNum(i);
-//			betMap.put(i, 100L);
-//			if (i < 3) {
-//				betMap.put(i, 2000L + i * 100);
-//			} else {
-//				betMap.put(i, 200L + i * 10);
-//			}
-//			ingamePlayers.add(p);
-//		}
-//		sumBetPoolList(betPoolList, betMap, ingamePlayers);
-//		logger.info(JsonUtils.toJson(betMap, betMap.getClass()));
-//		for (BetPool pool : betPoolList) {
-//			logger.info("pool:" + pool.getBetSum());
-//			logger.info("size:" + pool.getBetPlayerList().size());
-//			logger.info(JsonUtils.toJson(pool.getBetPlayerList(), pool.getBetPlayerList().getClass()));
-//		}
-//		logger.info("poolSize:" + betPoolList.size());
-//	}
-//
-//	public static void testCompareCardsToWinList() {
-//		List<Player> poolPlayers = new ArrayList<>();
-//		Map<Integer, List<Integer>> finalCardsMap = new HashMap<Integer, List<Integer>>();
-//
-//		poolPlayers.add(null);
-//		for (int i = 1; i < 6; i++) {
-//			Player p = new Player();
-//			p.setSeatNum(i);
-//			p.setFold(false);
-//			poolPlayers.add(p);
-//		}
-//		finalCardsMap.put(1, new ArrayList<Integer>(Arrays.asList(24, 28, 39, 40, 51, 1)));
-//		finalCardsMap.put(2, new ArrayList<Integer>(Arrays.asList(36, 39, 28, 40, 51, 2)));
-//		finalCardsMap.put(3, new ArrayList<Integer>(Arrays.asList(40, 39, 32, 28, 26, 5)));
-//		finalCardsMap.put(4, new ArrayList<Integer>(Arrays.asList(50, 51, 40, 41, 39, 3)));
-//		finalCardsMap.put(5, new ArrayList<Integer>(Arrays.asList(12, 14, 39, 40, 51, 2)));
-//		// "finalCardsMap\":{\"1\":,\"2\":[],\"3\":[],\"4\":[],\"5\":[]}
-//		List<Player> winPlayerList = compareCardsToWinList(poolPlayers, finalCardsMap);
-//		logger.info(JsonUtils.toJson(poolPlayers, poolPlayers.getClass()));
-//		logger.info(JsonUtils.toJson(winPlayerList, winPlayerList.getClass()));
-//	}
 }
