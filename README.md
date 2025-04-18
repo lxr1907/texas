@@ -5,7 +5,7 @@
 a texas game
 ### 软件架构
 #### 服务端server
-java13 springboot3.3.5 websocket
+java21 springboot3.3.5 websocket
 #### 前端web
 html+js+canvas
 #### 数据库database

@@ -27,7 +27,7 @@ import java.io.IOException;
  *
  * @author lxr
  */
-@ServerEndpoint("/ws/texas")
+@ServerEndpoint(value = "/ws/texas", configurator = SpringAwareEndpointConfigurator.class)
 @Component
 public class TexasWS {
     // 缓冲区最大大小
@@ -97,21 +97,7 @@ public class TexasWS {
             }
 
         } catch (Exception e) {
-            SystemLogEntity entity = new SystemLogEntity();
-            entity.setType(c + "");
-            entity.setOperation(message);
-            StackTraceElement[] eArray = e.getCause().getStackTrace();
-            String errorMessage = "";
-            for (int i = 0; i < eArray.length; i++) {
-                String className = e.getCause().getStackTrace()[i].getClassName();
-                String MethodName = e.getCause().getStackTrace()[i].getMethodName();
-                int LineNumber = e.getCause().getStackTrace()[i].getLineNumber();
-                errorMessage = errorMessage + "\n---" + className + "." + MethodName + ",line:" + LineNumber;
-            }
-            entity.setContent(e.getCause() + errorMessage);
-            entity.setDatetime(DateUtil.nowDatetime());
-            systemLogService.insertSystemLog(entity);
-            String retMsg = "{\"c\":\"onException\",\"state\":0,\"message\":\"系统异常" + errorMessage + "\"}";
+            String retMsg = "{\"c\":\"onException\",\"state\":0,\"message\":\"系统异常" + e.getMessage() + "\"}";
             sendText(session, retMsg);
             logger.error("onMessageDo", e);
         }
@@ -148,7 +134,9 @@ public class TexasWS {
             roomService.outRoom(session, "", false);
         }
         TexasStatic.loginPlayerMap.remove(session.getId());
-        TexasStatic.playerSessionMap.remove(p.getId());
+        if (p != null) {
+            TexasStatic.playerSessionMap.remove(p.getId());
+        }
     }
 
     /**
