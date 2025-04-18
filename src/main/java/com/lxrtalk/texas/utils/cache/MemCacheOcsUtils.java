@@ -8,15 +8,14 @@ import org.apache.logging.log4j.Logger;
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.BinaryConnectionFactory;
 import net.spy.memcached.MemcachedClient;
-import com.lxrtalk.texas.constants.ParamsAndURL;
 
 public class MemCacheOcsUtils {
 	private static Logger logger = LogManager.getLogger(MemCacheOcsUtils.class);
-	public static final String host = (String) ParamsAndURL.getParam("MEMCACHE_host");
+	public static final String host = "127.0.0.1";
 	public static final String port = "11211"; // 默认端口 11211，不用改
 	public static MemcachedClient cache;
 
-	public static MemcachedClient getCache() {
+	public static synchronized MemcachedClient getCache() {
 		if (cache == null) {
 			try {
 				cache = new MemcachedClient(new BinaryConnectionFactory(), AddrUtil.getAddresses(host + ":" + port));
