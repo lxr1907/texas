@@ -388,6 +388,7 @@ public class TexasRoom {
     private void clearOneGameInfos() {
         // 清除本局状态信息
         gameLog = new GameLog();
+        finalCardsReadMap.clear();
         betMap.clear();
         // 清除betRoundMap
         betRoundMap.clear();
