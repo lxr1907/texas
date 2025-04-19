@@ -17,15 +17,15 @@ public class RobotManager {
     /**
      * 机器人列表
      */
-    private static List<RobotWsClient> robotClientList = new CopyOnWriteArrayList<>();
+    private static final List<RobotWsClient> robotClientList = new CopyOnWriteArrayList<>();
     /**
      * 最多允许的机器人个数
      */
     public static final int MAX_ROBOT_COUNT = 2;
+    public static ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public static void start(int number) {
         // 创建一个单线程的线程池
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             if (robotClientList.size() < MAX_ROBOT_COUNT) {
                 for (int i = 0; i < number; i++) {

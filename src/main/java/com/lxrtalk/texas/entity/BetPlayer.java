@@ -1,5 +1,6 @@
 package com.lxrtalk.texas.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import com.google.gson.annotations.Expose;
@@ -12,6 +13,7 @@ import com.google.gson.annotations.Expose;
  */
 public class BetPlayer extends BaseEntity implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
 	/**
 	 * 座位号,从0开始算,没有座位-1

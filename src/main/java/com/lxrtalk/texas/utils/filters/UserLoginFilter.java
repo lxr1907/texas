@@ -25,9 +25,6 @@ public class UserLoginFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) request;
-		HttpServletResponse resp = (HttpServletResponse) response;
-		HttpSession session = req.getSession(false);
-		// String uri = req.getRequestURI();
 		// 通过token值判断是否需要重新登录
 		String uid = req.getParameter("uid");
 		String token = req.getParameter("token");
@@ -36,7 +33,6 @@ public class UserLoginFilter implements Filter {
 		if (!StringUtil.isEmpty(servertoken) && !StringUtil.isEmpty(token)
 				&& servertoken.equals(token)) {
 			chain.doFilter(request, response);
-			return;
 		}
 
 	}

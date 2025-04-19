@@ -1,6 +1,8 @@
 package com.lxrtalk.texas.utils.filters;
 
 import java.io.IOException;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +35,8 @@ import com.lxrtalk.texas.utils.logs.LogThread;
  *
  */
 @Controller
-public class LogFilter implements Filter {
+public class LogFilter implements Filter, Serializable {
+	@Serial
 	private static final long serialVersionUID = -4220585371840995250L;
 	@Autowired
 	SystemLogService logservice;
@@ -48,8 +51,6 @@ public class LogFilter implements Filter {
 			throws IOException, ServletException {
 		chain.doFilter(request, response);
 		HttpServletRequest req = (HttpServletRequest) request;
-		HttpServletResponse resp = (HttpServletResponse) response;
-		HttpSession session = req.getSession(false);
 		// uri
 		String uri = req.getRequestURI();
 
@@ -82,11 +83,11 @@ public class LogFilter implements Filter {
 		}
 		uid = req.getParameter("uid");
 		
-			if (uid != null && uid.length() != 0) {
+			if (uid != null && !uid.isEmpty()) {
 				log.setUserid(uid);
 			}
 			String token = req.getParameter("token");
-			if (token != null && token.length() != 0) {
+			if (token != null && !token.isEmpty()) {
 				log.setToken(token);
 			}
 			message = "匿名访问：" + req.getRequestURI() + ",参数：" + parm;
@@ -95,11 +96,11 @@ public class LogFilter implements Filter {
 			log.setMachine(machine);
 		}
 		String devicetype = req.getParameter("devicetype");
-		if (devicetype != null && devicetype.length() != 0) {
+		if (devicetype != null && !devicetype.isEmpty()) {
 			log.setClienttype(devicetype);
 		}
 		String appversion = req.getParameter("appversion");
-		if (appversion != null && appversion.length() != 0) {
+		if (appversion != null && !appversion.isEmpty()) {
 			log.setAppversion(appversion);
 		}
 
@@ -118,27 +119,27 @@ public class LogFilter implements Filter {
 			logtt.start();
 		}
 		// 记录用户的machine,用于推送等
-		if (machine != null && machine.length() != 0) {
+		if (machine != null && !machine.isEmpty()) {
 			UserMachineEntity machineinfo = new UserMachineEntity();
 			machineinfo.setMachine(machine);
 			List<UserMachineEntity> mlist = userMachineS.queryUserMachine(machineinfo);
-			if (uid != null && uid.length() != 0) {
+			if (uid != null && !uid.isEmpty()) {
 				machineinfo.setUid(uid);
 			} else {
 				machineinfo.setUid("0");
 			}
 			String xiaomiid = req.getParameter("xiaomiid");
-			if (xiaomiid != null && xiaomiid.length() != 0) {
+			if (xiaomiid != null && !xiaomiid.isEmpty()) {
 				machineinfo.setXiaomiid(xiaomiid.replace(" ", "+"));
 			}
 			String otherid1 = req.getParameter("otherid1");
-			if (otherid1 != null && otherid1.length() != 0) {
+			if (otherid1 != null && !otherid1.isEmpty()) {
 				machineinfo.setOtherid1(otherid1);
 			}
 			if (devicetype != null && devicetype.length() != 0) {
 				machineinfo.setDevicetype(devicetype);
 			}
-			if (mlist.size() == 0) {
+			if (mlist.isEmpty()) {
 				userMachineS.addUserMachine(machineinfo);
 			} else {
 				userMachineS.updateUserMachine(machineinfo);

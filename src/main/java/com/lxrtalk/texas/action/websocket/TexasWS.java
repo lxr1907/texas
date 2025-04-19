@@ -2,16 +2,12 @@ package com.lxrtalk.texas.action.websocket;
 
 import com.lxrtalk.texas.entity.BaseEntity;
 import com.lxrtalk.texas.entity.Player;
-import com.lxrtalk.texas.entity.SystemLogEntity;
 import com.lxrtalk.texas.service.LobbyService;
 import com.lxrtalk.texas.service.PlayerService;
 import com.lxrtalk.texas.service.RoomService;
 import com.lxrtalk.texas.service.SystemLogService;
-import com.lxrtalk.texas.texas.BeanUtil;
-import com.lxrtalk.texas.texas.CtrlList;
 import com.lxrtalk.texas.texas.TexasStatic;
 import com.lxrtalk.texas.utils.SpringUtil;
-import com.lxrtalk.texas.utils.dateTime.DateUtil;
 import com.lxrtalk.texas.utils.serialize.JsonUtils;
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;

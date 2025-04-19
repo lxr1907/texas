@@ -1,5 +1,6 @@
 package com.lxrtalk.texas.texas.robot;
 
+import java.io.Serial;
 import java.util.Date;
 
 import com.google.gson.annotations.Expose;
@@ -7,6 +8,7 @@ import com.google.gson.annotations.Expose;
 import com.lxrtalk.texas.entity.BetPlayer;
 
 public class RobotPlayer extends BetPlayer {
+	@Serial
 	private static final long serialVersionUID = 8177609408282689534L;
 	/**
 	 * 账号

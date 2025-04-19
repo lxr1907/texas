@@ -38,8 +38,6 @@ import com.lxrtalk.texas.utils.serialize.JsonUtils;
 
 /**
  * 房间实体
- * 
- * @author Ming
  *
  */
 @Component

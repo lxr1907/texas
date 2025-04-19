@@ -27,9 +27,6 @@ public class RoomTypeList {
 
 	/**
 	 * 根据级别获取德州扑克房间
-	 * 
-	 * @param level
-	 * @return
 	 */
 	public static Room getNewRoom(int level) {
 		Room room = new Room();

@@ -9,9 +9,6 @@ import com.lxrtalk.texas.entity.Player;
 
 /**
  * 奖池计算
- * 
- * @author lixiaoran
- *
  */
 public class BetPool {
 	/**
