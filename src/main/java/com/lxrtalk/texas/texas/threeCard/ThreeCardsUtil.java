@@ -10,7 +10,7 @@ import com.lxrtalk.texas.cardUtils.ThreeCardCompareUtil;
 import com.lxrtalk.texas.entity.Player;
 import com.lxrtalk.texas.entity.PrivateRoom;
 import com.lxrtalk.texas.entity.RetMsg;
-import com.lxrtalk.texas.texas.Room;
+import com.lxrtalk.texas.texas.TexasRoom;
 import com.lxrtalk.texas.texas.TexasUtil;
 import com.lxrtalk.texas.utils.serialize.JsonUtils;
 
@@ -32,7 +32,7 @@ public class ThreeCardsUtil {
 		Player currPlayer = TexasUtil.getPlayerBySessionId(session.getId());
 		// 判断是否轮到当前玩家操作
 		if (currPlayer == null || currPlayer.getRoom() == null
-				|| currPlayer.getSeatNum() != currPlayer.getRoom().getNextturn()) {
+				|| currPlayer.getSeatNum() != currPlayer.getRoom().getNextTurn()) {
 			return;
 		}
 		if (currPlayer.getRoom().getGamestate().get() != 1) {
@@ -68,17 +68,17 @@ public class ThreeCardsUtil {
 		Player currPlayer = TexasUtil.getPlayerBySessionId(session.getId());
 		// 判断是否轮到自己
 		if (currPlayer == null || currPlayer.getRoom() == null
-				|| currPlayer.getSeatNum() != currPlayer.getRoom().getNextturn()) {
+				|| currPlayer.getSeatNum() != currPlayer.getRoom().getNextTurn()) {
 			return;
 		}
 		if (currPlayer.getRoom().getGamestate().get() != 1) {
 			return;
 		}
-		ThreeCardRoom room = (ThreeCardRoom) currPlayer.getRoom();
+		ThreeCardTexasRoom room = (ThreeCardTexasRoom) currPlayer.getRoom();
 		int betBase = 0;
 		// 看牌下注基数和暗牌下注基数不同
 		if (currPlayer.isLook()) {
-			betBase = room.getSmallBet();
+			betBase = room.getConfig().getSmallBet();
 		} else {
 			betBase = room.getSmallBlindBet();
 		}
@@ -106,12 +106,11 @@ public class ThreeCardsUtil {
 	/**
 	 * 为房间中正在游戏的玩家分配手牌
 	 * 
-	 * @param room
-	 * @param player
+	 * @param texasRoom
 	 */
-	public static void assignHandPokerByRoom(Room room) {
-		List<Integer> cardList = room.getCardList();
-		for (Player p : room.getIngamePlayers()) {
+	public static void assignHandPokerByRoom(TexasRoom texasRoom) {
+		List<Integer> cardList = texasRoom.getCardList();
+		for (Player p : texasRoom.getIngamePlayers()) {
 			List<Integer> pCards = cardList.subList(0, 3);
 			pCards = ThreeCardCompareUtil.getCardsGroupType(pCards);
 			// 三张牌和牌型

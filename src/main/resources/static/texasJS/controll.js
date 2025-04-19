@@ -283,7 +283,7 @@ function drawRoomInfos() {
     resetSlipBarAndButtons();
     // 操作倒计时
     timeBar.time = roomInfo.optTimeout / 1000;
-    createTimeBar(getPlayerBySeatNum(roomInfo.nextturn));
+    createTimeBar(getPlayerBySeatNum(roomInfo.nextTurn));
 }
 // 有玩家下注
 function onPlayerBet(e, data) {

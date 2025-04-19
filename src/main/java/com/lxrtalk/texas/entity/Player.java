@@ -2,11 +2,10 @@ package com.lxrtalk.texas.entity;
 
 import java.io.Serializable;
 
+import com.lxrtalk.texas.texas.TexasRoom;
 import jakarta.websocket.Session;
 
 import com.google.gson.annotations.Expose;
-
-import com.lxrtalk.texas.texas.Room;
 
 /**
  * 玩家实体
@@ -73,7 +72,7 @@ public class Player extends BetPlayer implements Serializable {
 	 * 用户所在房间
 	 */
 	@Expose(serialize = false, deserialize = false)
-	private Room room;
+	private TexasRoom texasRoom;
 	/**
 	 * 是否已经弃牌
 	 */
@@ -177,12 +176,12 @@ public class Player extends BetPlayer implements Serializable {
 		this.regdate = regdate;
 	}
 
-	public Room getRoom() {
-		return room;
+	public TexasRoom getRoom() {
+		return texasRoom;
 	}
 
-	public void setRoom(Room room) {
-		this.room = room;
+	public void setRoom(TexasRoom texasRoom) {
+		this.texasRoom = texasRoom;
 	}
 
 	public int[] getHandPokers() {

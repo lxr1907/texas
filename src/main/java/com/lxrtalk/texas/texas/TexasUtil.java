@@ -3,6 +3,7 @@ package com.lxrtalk.texas.texas;
 import java.util.*;
 import java.util.Map.Entry;
 
+import com.lxrtalk.texas.texas.threeCard.ThreeCardTexasRoom;
 import jakarta.websocket.Session;
 
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +16,6 @@ import com.lxrtalk.texas.entity.PrivateRoom;
 import com.lxrtalk.texas.entity.RetMsg;
 import com.lxrtalk.texas.service.PlayerService;
 import com.lxrtalk.texas.texas.robot.RobotManager;
-import com.lxrtalk.texas.texas.threeCard.ThreeCardRoom;
 import com.lxrtalk.texas.utils.SpringUtil;
 import com.lxrtalk.texas.utils.serialize.JsonUtils;
 
@@ -28,13 +28,13 @@ public class TexasUtil {
      * @param level
      * @return
      */
-    public static Room getUsableRoomThenIn(int level, Player p) {
-        for (int i = 0; i < TexasStatic.roomList.size(); i++) {
-            int roomState = TexasStatic.roomList.get(i).getRoomstate();
-            if (roomState == 1 && TexasStatic.roomList.get(i).getLevel() == level) {
-                boolean success = inRoom(TexasStatic.roomList.get(i), p);
+    public static TexasRoom getUsableRoomThenIn(int level, Player p) {
+        for (int i = 0; i < TexasStatic.texasRoomList.size(); i++) {
+            int roomState = TexasStatic.texasRoomList.get(i).getRoomstate();
+            if (roomState == 1 && TexasStatic.texasRoomList.get(i).getLevel() == level) {
+                boolean success = inRoom(TexasStatic.texasRoomList.get(i), p);
                 if (success) {
-                    return TexasStatic.roomList.get(i);
+                    return TexasStatic.texasRoomList.get(i);
                 }
             }
         }
@@ -46,12 +46,12 @@ public class TexasUtil {
      *
      * @param type 1宝鸡拼三张，不传默认德州扑克
      */
-    public static Room getUsableRoomThenIn(int level, Player p, int type) {
+    public static TexasRoom getUsableRoomThenIn(int level, Player p, int type) {
         // 加入游戏类型，1宝鸡拼三张，不传默认德州扑克
         if (type == 1) {
-            ThreeCardRoom usableroom = null;
-            ThreeCardRoom roomConfig = RoomTypeList.threeCardRoomTypeMap.get(level);
-            if (p.getChips() < roomConfig.getMinChips()) {
+            ThreeCardTexasRoom usableroom = null;
+            ThreeCardTexasRoom roomConfig = RoomTypeList.threeCardRoomTypeMap.get(level);
+            if (p.getChips() < roomConfig.getConfig().getMinChips()) {
                 return null;
             }
             for (int i = 0; i < TexasStatic.threeCardRoomList.size(); i++) {
@@ -70,9 +70,9 @@ public class TexasUtil {
         }
     }
 
-    public static Room createRoomThenIn(int level, Player player, int type) {
+    public static TexasRoom createRoomThenIn(int level, Player player, int type) {
         if (type == 1) {
-            ThreeCardRoom newRoom = createThreeCardRoomRoom(level);
+            ThreeCardTexasRoom newRoom = createThreeCardRoomRoom(level);
             inRoom(newRoom, player);
             TexasStatic.threeCardRoomList.add(newRoom);
             return newRoom;
@@ -87,33 +87,33 @@ public class TexasUtil {
      * <pre>
      * 1，检查房间是否还可加入 2，加入房间/重新查找可以进入的房间 3，改变房间状态
      */
-    public static boolean inRoom(Room room, Player player) {
-        if (room == null || player == null) {
+    public static boolean inRoom(TexasRoom texasRoom, Player player) {
+        if (texasRoom == null || player == null) {
             return false;
         }
         // 如果玩家已在房间中，则先出房间
         outRoom(player);
-        if (room.getRoomstate() == 0) {
+        if (texasRoom.getRoomstate() == 0) {
             return false;
         }
         // 房间加锁
-        synchronized (room.getFreeSeatStack()) {
+        synchronized (texasRoom.getFreeSeatStack()) {
             // 房间满人，修改状态为不可加入, 加入房间失败
-            if (room.getFreeSeatStack().isEmpty()) {
-                room.setRoomstate(0);
+            if (texasRoom.getFreeSeatStack().isEmpty()) {
+                texasRoom.setRoomstate(0);
                 return false;
             }
-            room.getWaitPlayers().add(player);
+            texasRoom.getWaitPlayers().add(player);
             // 设定座位号
-            int seatNum = room.getFreeSeatStack().pop();// 从空闲座位的栈中取出一个座位
+            int seatNum = texasRoom.getFreeSeatStack().pop();// 从空闲座位的栈中取出一个座位
             player.setSeatNum(seatNum);
-            if (room.getFreeSeatStack().isEmpty()) {
+            if (texasRoom.getFreeSeatStack().isEmpty()) {
                 // 房间满人，修改状态为不可加入
-                room.setRoomstate(0);
+                texasRoom.setRoomstate(0);
             }
-            room.assignChipsForInRoom(player);
+            texasRoom.assignChipsForInRoom(player);
             // 成功则设置房间
-            player.setRoom(room);
+            player.setRoom(texasRoom);
         }
         return true;
     }
@@ -126,26 +126,26 @@ public class TexasUtil {
             return;
         }
         synchronized (player.getRoom().getFreeSeatStack()) {
-            Room room = player.getRoom();
+            TexasRoom texasRoom = player.getRoom();
             // 通知所有房间内玩家，有玩家离开
-            sendPlayerToOthers(player, room, "onPlayerLeaveRoom");
+            sendPlayerToOthers(player, texasRoom, "onPlayerLeaveRoom");
             removeWaitOrInGamePlayer(player);
             // 成功则设置房间
-            int index = room.donePlayerList.indexOf(player.getSeatNum());
+            int index = texasRoom.donePlayerList.indexOf(player.getSeatNum());
             if (index != -1) {
-                room.donePlayerList.remove(index);
+                texasRoom.donePlayerList.remove(index);
             }
             // 记录玩家的筹码变化
-            room.assignChipsForOutRoom(player);
+            texasRoom.assignChipsForOutRoom(player);
             // 还座位号
             if (player.getSeatNum() != -1) {
-                room.getFreeSeatStack().push(player.getSeatNum());
+                texasRoom.getFreeSeatStack().push(player.getSeatNum());
                 player.setSeatNum(-1);
             }
             // 修改房间状态为可加入
-            room.setRoomstate(1);
+            texasRoom.setRoomstate(1);
             // 在游戏中的玩家数少于最低玩家数时结束游戏
-            room.checkEnd();
+            texasRoom.checkEnd();
         }
     }
 
@@ -161,12 +161,12 @@ public class TexasUtil {
 
     public static void removeWaitPlayer(Player player) {
         if (player != null && player.getRoom() != null) {
-            Room room = player.getRoom();
+            TexasRoom texasRoom = player.getRoom();
             // 等待中的玩家退出房间
-            for (int i = 0; i < room.getWaitPlayers().size(); i++) {
-                Player p = room.getWaitPlayers().get(i);
+            for (int i = 0; i < texasRoom.getWaitPlayers().size(); i++) {
+                Player p = texasRoom.getWaitPlayers().get(i);
                 if (p.getId().equals(player.getId())) {
-                    room.getWaitPlayers().remove(i);
+                    texasRoom.getWaitPlayers().remove(i);
                     break;
                 }
             }
@@ -175,12 +175,12 @@ public class TexasUtil {
 
     public static void removeIngamePlayer(Player player) {
         if (player != null && player.getRoom() != null) {
-            Room room = player.getRoom();
+            TexasRoom texasRoom = player.getRoom();
             // 等待中的玩家退出房间
-            for (int i = 0; i < room.getIngamePlayers().size(); i++) {
-                Player p = room.getIngamePlayers().get(i);
+            for (int i = 0; i < texasRoom.getIngamePlayers().size(); i++) {
+                Player p = texasRoom.getIngamePlayers().get(i);
                 if (p.getId().equals(player.getId())) {
-                    room.getIngamePlayers().remove(i);
+                    texasRoom.getIngamePlayers().remove(i);
                     break;
                 }
             }
@@ -190,9 +190,9 @@ public class TexasUtil {
     /**
      * 为房间中正在游戏的玩家分配手牌
      */
-    public static void assignHandPokerByRoom(Room room) {
-        List<Integer> cardList = room.getCardList();
-        for (Player p : room.getIngamePlayers()) {
+    public static void assignHandPokerByRoom(TexasRoom texasRoom) {
+        List<Integer> cardList = texasRoom.getCardList();
+        for (Player p : texasRoom.getIngamePlayers()) {
             int[] hankPoker = {cardList.get(0), cardList.get(1)};
             cardList.remove(0);
             cardList.remove(0);
@@ -204,13 +204,13 @@ public class TexasUtil {
     /**
      * 发公共牌
      *
-     * @param room 房间
+     * @param texasRoom 房间
      * @param num  数量
      */
-    public static void assignCommonCardByNum(Room room, int num) {
-        List<Integer> cardList = room.getCardList();
+    public static void assignCommonCardByNum(TexasRoom texasRoom, int num) {
+        List<Integer> cardList = texasRoom.getCardList();
         for (int i = 0; i < num; i++) {
-            room.getCommunityCards().add(cardList.get(0));
+            texasRoom.getCommunityCards().add(cardList.get(0));
             cardList.remove(0);
         }
         // 通知房间中的每个玩家
@@ -218,10 +218,10 @@ public class TexasUtil {
         retMsg.setC("onAssignCommonCard");
         retMsg.setState(1);
         // 所有公共牌
-        String message = JsonUtils.toJson(room.getCommunityCards(), room.getCommunityCards().getClass());
+        String message = JsonUtils.toJson(texasRoom.getCommunityCards(), texasRoom.getCommunityCards().getClass());
         retMsg.setMessage(message);
         String msg = JsonUtils.toJson(retMsg, RetMsg.class);
-        sendMsgToPlayerByRoom(room, msg);
+        sendMsgToPlayerByRoom(texasRoom, msg);
     }
 
     /**
@@ -247,21 +247,21 @@ public class TexasUtil {
     /**
      * 获取房间中的玩家数量
      *
-     * @param room
+     * @param texasRoom
      * @return
      */
-    public static int getRoomPlayerCount(Room room) {
-        int playerCount = room.getWaitPlayers().size() + room.getIngamePlayers().size();
+    public static int getRoomPlayerCount(TexasRoom texasRoom) {
+        int playerCount = texasRoom.getWaitPlayers().size() + texasRoom.getIngamePlayers().size();
         return playerCount;
     }
 
     /**
      * 创建一个相应级别的房间
      */
-    public static Room createRoom(int level) {
-        Room room = RoomTypeList.getNewRoom(level);
-        TexasStatic.roomList.add(room);
-        return room;
+    public static TexasRoom createRoom(int level) {
+        TexasRoom texasRoom = RoomTypeList.getNewRoom(level);
+        TexasStatic.texasRoomList.add(texasRoom);
+        return texasRoom;
     }
 
     /**
@@ -269,17 +269,17 @@ public class TexasUtil {
      *
      * @param level
      */
-    public static Room createRoomByPlayer(int level, Player player) {
-        Room room = RoomTypeList.getNewRoom(level);
-        inRoom(room, player);
-        TexasStatic.roomList.add(room);
-        return room;
+    public static TexasRoom createRoomByPlayer(int level, Player player) {
+        TexasRoom texasRoom = RoomTypeList.getNewRoom(level);
+        inRoom(texasRoom, player);
+        TexasStatic.texasRoomList.add(texasRoom);
+        return texasRoom;
     }
 
-    public static ThreeCardRoom createThreeCardRoomRoom(int level) {
-        ThreeCardRoom room = null;
+    public static ThreeCardTexasRoom createThreeCardRoomRoom(int level) {
+        ThreeCardTexasRoom room = null;
         room = RoomTypeList.getThreeCardRoom(level);
-        TexasStatic.threeCardRoomList.add((ThreeCardRoom) room);
+        TexasStatic.threeCardRoomList.add((ThreeCardTexasRoom) room);
         return room;
     }
 
@@ -287,11 +287,11 @@ public class TexasUtil {
      * 移除没有玩家的空房间
      */
     public static void removeEmptyRoom() {
-        for (int i = 0; i < TexasStatic.roomList.size(); i++) {
-            Room room = TexasStatic.roomList.get(i);
-            int count = room.getIngamePlayers().size() + room.getWaitPlayers().size();
+        for (int i = 0; i < TexasStatic.texasRoomList.size(); i++) {
+            TexasRoom texasRoom = TexasStatic.texasRoomList.get(i);
+            int count = texasRoom.getIngamePlayers().size() + texasRoom.getWaitPlayers().size();
             if (count == 0) {
-                TexasStatic.roomList.remove(i);
+                TexasStatic.texasRoomList.remove(i);
             }
         }
     }
@@ -314,32 +314,32 @@ public class TexasUtil {
     /**
      * 给房间中正在游戏的玩家发送消息
      *
-     * @param room
+     * @param texasRoom
      * @param msg
      */
-    public static void sendMsgToIngamePlayerByRoom(Room room, String msg) {
-        sendMsgToList(room.getIngamePlayers(), msg);
+    public static void sendMsgToIngamePlayerByRoom(TexasRoom texasRoom, String msg) {
+        sendMsgToList(texasRoom.getIngamePlayers(), msg);
     }
 
     /**
      * 给房间中处于等待状态的玩家发消息
      *
-     * @param room
+     * @param texasRoom
      * @param msg
      */
-    public static void sendMsgToWaitPlayerByRoom(Room room, String msg) {
-        sendMsgToList(room.getWaitPlayers(), msg);
+    public static void sendMsgToWaitPlayerByRoom(TexasRoom texasRoom, String msg) {
+        sendMsgToList(texasRoom.getWaitPlayers(), msg);
     }
 
     /**
      * 给房间中的每一个玩家发消息
      *
-     * @param room
+     * @param texasRoom
      * @param msg
      */
-    public static void sendMsgToPlayerByRoom(Room room, String msg) {
-        sendMsgToIngamePlayerByRoom(room, msg);
-        sendMsgToWaitPlayerByRoom(room, msg);
+    public static void sendMsgToPlayerByRoom(TexasRoom texasRoom, String msg) {
+        sendMsgToIngamePlayerByRoom(texasRoom, msg);
+        sendMsgToWaitPlayerByRoom(texasRoom, msg);
     }
 
     /**
@@ -390,37 +390,37 @@ public class TexasUtil {
     /**
      * 更新下一个轮到的玩家
      *
-     * @param room
+     * @param texasRoom
      * @return
      */
-    public static void updateNextTurn(Room room) {
-        int thisturn = room.getNextturn();
+    public static void updateNextTurn(TexasRoom texasRoom) {
+        int thisturn = texasRoom.getNextTurn();
         // TODO 特殊判断。。。
-        thisturn = getNextSeatNum(thisturn, room, true);
-        room.setNextturn(thisturn);
+        thisturn = getNextSeatNum(thisturn, texasRoom, true);
+        texasRoom.setNextTurn(thisturn);
     }
 
     /**
      * 更新下一个轮到的玩家
      *
      * @param clockwise 是否顺时针
-     * @param room
+     * @param texasRoom
      * @return
      */
-    public static void updateNextTurn(Room room, boolean clockwise) {
-        int thisturn = room.getNextturn();
-        thisturn = getNextSeatNum(thisturn, room, clockwise);
-        room.setNextturn(thisturn);
+    public static void updateNextTurn(TexasRoom texasRoom, boolean clockwise) {
+        int thisturn = texasRoom.getNextTurn();
+        thisturn = getNextSeatNum(thisturn, texasRoom, clockwise);
+        texasRoom.setNextTurn(thisturn);
     }
 
     /**
      * 获取下一个可操作玩家的座位号
      */
-    public static int getNextSeatNum(int seatNum, Room room) {
+    public static int getNextSeatNum(int seatNum, TexasRoom texasRoom) {
         int begin = seatNum;
         while (true) {
-            seatNum = getNextNum(seatNum, room);
-            Player pi = getPlayerBySeatNum(seatNum, room.getIngamePlayers());
+            seatNum = getNextNum(seatNum, texasRoom);
+            Player pi = getPlayerBySeatNum(seatNum, texasRoom.getIngamePlayers());
             if (pi != null && !pi.isFold() && pi.getBodyChips() != 0) {
                 break;
             }
@@ -437,11 +437,11 @@ public class TexasUtil {
      *
      * @param clockwise 是否顺时针
      */
-    public static int getNextSeatNum(int seatNum, Room room, boolean clockwise) {
+    public static int getNextSeatNum(int seatNum, TexasRoom texasRoom, boolean clockwise) {
         int begin = seatNum;
         while (true) {
-            seatNum = getNextNum(seatNum, room, clockwise);
-            Player pi = getPlayerBySeatNum(seatNum, room.getIngamePlayers());
+            seatNum = getNextNum(seatNum, texasRoom, clockwise);
+            Player pi = getPlayerBySeatNum(seatNum, texasRoom.getIngamePlayers());
             if (pi != null && !pi.isFold() && pi.getBodyChips() != 0) {
                 break;
             }
@@ -456,18 +456,18 @@ public class TexasUtil {
     /**
      * 获取下一个玩家座位号,得到下一个dealer使用
      */
-    public static int getNextSeatNumDealer(int seatNum, Room room) {
+    public static int getNextSeatNumDealer(int seatNum, TexasRoom texasRoom) {
         boolean finded = false;
         int begin = seatNum;
         while (!finded) {
-            seatNum = getNextNum(seatNum, room);
-            for (Player pw : room.getWaitPlayers()) {
+            seatNum = getNextNum(seatNum, texasRoom);
+            for (Player pw : texasRoom.getWaitPlayers()) {
                 if (pw.getSeatNum() == seatNum) {
                     finded = true;
                     break;
                 }
             }
-            for (Player pi : room.getIngamePlayers()) {
+            for (Player pi : texasRoom.getIngamePlayers()) {
                 if (pi.getSeatNum() == seatNum) {
                     finded = true;
                     break;
@@ -485,12 +485,12 @@ public class TexasUtil {
      * 返回下一个座位号
      *
      * @param seatNum
-     * @param room
+     * @param texasRoom
      * @return
      */
-    private static int getNextNum(int seatNum, Room room) {
+    private static int getNextNum(int seatNum, TexasRoom texasRoom) {
         int nextSeatNum = seatNum + 1;
-        if (nextSeatNum >= room.getMaxPlayers()) {
+        if (nextSeatNum >= texasRoom.getConfig().getMaxPlayers()) {
             nextSeatNum = 0;
         }
         return nextSeatNum;
@@ -501,16 +501,16 @@ public class TexasUtil {
      *
      * @param clockwise 是否顺时针
      * @param seatNum
-     * @param room
+     * @param texasRoom
      * @return
      */
-    private static int getNextNum(int seatNum, Room room, boolean clockwise) {
+    private static int getNextNum(int seatNum, TexasRoom texasRoom, boolean clockwise) {
         if (clockwise) {
-            return getNextNum(seatNum, room);
+            return getNextNum(seatNum, texasRoom);
         } else {
             int nextSeatNum = seatNum - 1;
             if (nextSeatNum < 0) {
-                nextSeatNum = room.getMaxPlayers() - 1;
+                nextSeatNum = texasRoom.getConfig().getMaxPlayers() - 1;
             }
             return nextSeatNum;
         }
@@ -528,10 +528,10 @@ public class TexasUtil {
     /**
      * 每局开始时更新下一个dealer
      */
-    public static void updateNextDealer(Room room) {
-        int d = room.getDealer();
-        d = getNextSeatNumDealer(d, room);
-        room.setDealer(d);
+    public static void updateNextDealer(TexasRoom texasRoom) {
+        int d = texasRoom.getDealer();
+        d = getNextSeatNumDealer(d, texasRoom);
+        texasRoom.setDealer(d);
     }
 
     /**
@@ -579,7 +579,7 @@ public class TexasUtil {
      * @param message
      */
     public static void inRoom(Session session, String message) {
-        Room roomMessage = getRoomMessage(message);
+        TexasRoom texasRoomMessage = getRoomMessage(message);
         RetMsg rm = new RetMsg();
         rm.setC("onEnterRoom");
         rm.setState(1);
@@ -613,9 +613,9 @@ public class TexasUtil {
         long restChips = upPlayer.getChips() - bodyChips;
         currPlayer.setChips(restChips);
 
-        Room roomConfig = RoomTypeList.roomTypeMap.get(roomMessage.getLevel());
+        TexasRoomConfig texasRoomConfig = RoomTypeList.roomTypeMap.get(texasRoomMessage.getLevel());
 
-        if (currPlayer.getChips() < roomConfig.getMinChips()) {
+        if (currPlayer.getChips() < texasRoomConfig.getMinChips()) {
             rm.setState(0);
             rm.setMessage("筹码不足");
             String retMsg = JsonUtils.toJson(rm, RetMsg.class);
@@ -623,18 +623,18 @@ public class TexasUtil {
             return;
         }
         // 查找空房间，没有则创建新房间
-        Room usableRoom = getUsableRoomThenIn(roomMessage.getLevel(), currPlayer, roomMessage.getType());
+        TexasRoom usableTexasRoom = getUsableRoomThenIn(texasRoomMessage.getLevel(), currPlayer, texasRoomMessage.getType());
         PrivateRoom pRoom = new PrivateRoom();
-        pRoom.setRoom(usableRoom);
+        pRoom.setRoom(usableTexasRoom);
         String roominfo = JsonUtils.toJson(pRoom, PrivateRoom.class);
         rm.setMessage(roominfo);
         // 通知玩家加入房间成功
         String retMsg = JsonUtils.toJson(rm, RetMsg.class);
         sendMsgToOne(currPlayer, retMsg);
         // 通知所有房间内玩家，有玩家加入
-        sendPlayerToOthers(currPlayer, usableRoom, "onPlayerEnterRoom");
+        sendPlayerToOthers(currPlayer, usableTexasRoom, "onPlayerEnterRoom");
         // 检查房间是否可以开始游戏,一秒等待
-        usableRoom.checkStart(800);
+        usableTexasRoom.checkStart(800);
     }
 
     /**
@@ -661,32 +661,32 @@ public class TexasUtil {
 
     }
 
-    public static Room getRoomMessage(String message) {
-        return JsonUtils.fromJson(message, Room.class);
+    public static TexasRoom getRoomMessage(String message) {
+        return JsonUtils.fromJson(message, TexasRoom.class);
     }
 
     /**
      * 向除currPlayer之外的玩家发送currPlayer玩家信息
      */
-    public static void sendPlayerToOthers(Player currPlayer, Room room, String c) {
+    public static void sendPlayerToOthers(Player currPlayer, TexasRoom texasRoom, String c) {
         String currPlayerInfo = JsonUtils.toJson(currPlayer, Player.class);
         RetMsg rm_inRoom = new RetMsg();
         rm_inRoom.setC(c);
         rm_inRoom.setState(1);
         rm_inRoom.setMessage(currPlayerInfo);
         String inRoomMessage = JsonUtils.toJson(rm_inRoom, RetMsg.class);
-        sendMessageToOtherPlayers(currPlayer.getId(), room, inRoomMessage);
+        sendMessageToOtherPlayers(currPlayer.getId(), texasRoom, inRoomMessage);
     }
 
     /**
      * 向除currPlayer之外的玩家发送message
      */
-    public static void sendMessageToOtherPlayers(String selfId, Room room, String message) {
-        if (room == null) {
+    public static void sendMessageToOtherPlayers(String selfId, TexasRoom texasRoom, String message) {
+        if (texasRoom == null) {
             return;
         }
         // 通知其他玩家
-        List<Player> waitPlayers = room.getWaitPlayers();
+        List<Player> waitPlayers = texasRoom.getWaitPlayers();
         for (Player p : waitPlayers) {
             if (p != null && !Objects.equals(p.getId(), selfId)) {
                 Session _session = p.getSession();
@@ -694,7 +694,7 @@ public class TexasUtil {
             }
 
         }
-        List<Player> ingamePlayers = room.getIngamePlayers();
+        List<Player> ingamePlayers = texasRoom.getIngamePlayers();
         for (Player p : ingamePlayers) {
             if (p != null && !Objects.equals(p.getId(), selfId)) {
                 Session _session = p.getSession();

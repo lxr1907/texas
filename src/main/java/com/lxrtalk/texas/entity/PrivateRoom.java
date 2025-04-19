@@ -9,7 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.gson.annotations.Expose;
 
-import com.lxrtalk.texas.texas.Room;
+import com.lxrtalk.texas.texas.TexasRoom;
 
 /**
  * 私有房间信息（包含自己的手牌）
@@ -70,16 +70,16 @@ public class PrivateRoom implements Serializable {
 	@Expose
 	protected Map<Integer, Long> betRoundMap = new LinkedHashMap<>();
 
-	public void setRoom(Room room) {
-		setBetRoundMap(room.getBetMap());
-		setBigBet(room.getBigBet());
-		setIngamePlayers(room.getIngamePlayers());
-		setWaitPlayers(room.getWaitPlayers());
-		setNextturn(room.getNextturn());
-		setCommunityCards(room.getCommunityCards());
-		setBetAmount(room.getBetAmount());
-		setOptTimeout(room.getOptTimeout());
-		setRoundMaxBet(room.getRoundMaxBet());
+	public void setRoom(TexasRoom texasRoom) {
+		setBetRoundMap(texasRoom.getBetMap());
+		setBigBet(texasRoom.getConfig().getBigBet());
+		setIngamePlayers(texasRoom.getIngamePlayers());
+		setWaitPlayers(texasRoom.getWaitPlayers());
+		setNextturn(texasRoom.getNextTurn());
+		setCommunityCards(texasRoom.getCommunityCards());
+		setBetAmount(texasRoom.getBetAmount());
+		setOptTimeout(texasRoom.getConfig().getOptTimeout());
+		setRoundMaxBet(texasRoom.getRoundMaxBet());
 	}
 
 

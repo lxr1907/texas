@@ -14,18 +14,18 @@ import com.lxrtalk.texas.utils.serialize.JsonUtils;
 public class RoomInfoController {
 	@RequestMapping("/roomList")
 	public String roomList() {
-		return JsonUtils.toListJson(TexasStatic.roomList);
+		return JsonUtils.toListJson(TexasStatic.texasRoomList);
 	}
 
 	@RequestMapping("/roomCount")
 	public String roomCount() {
-		return TexasStatic.roomList.size() + "";
+		return TexasStatic.texasRoomList.size() + "";
 	}
 
 	@RequestMapping("/roomPlayers")
 	public AtomicInteger roomPlayers() {
 		AtomicInteger players = new AtomicInteger(0);
-		TexasStatic.roomList.parallelStream().forEach(room -> {
+		TexasStatic.texasRoomList.parallelStream().forEach(room -> {
 			players.getAndAdd(room.getIngamePlayers().size());
 		});
 		return players;
@@ -35,16 +35,16 @@ public class RoomInfoController {
 	public Map<String, String> statistics() {
 		Map<String, String> map = new HashMap<String, String>();
 		//总房间数量
-		map.put("roomCount", TexasStatic.roomList.size() + "");
+		map.put("roomCount", TexasStatic.texasRoomList.size() + "");
 		//游戏中玩家数量
 		AtomicInteger ingamePlayers = new AtomicInteger(0);
-		TexasStatic.roomList.parallelStream().forEach(room -> {
+		TexasStatic.texasRoomList.parallelStream().forEach(room -> {
 			ingamePlayers.getAndAdd(room.getIngamePlayers().size());
 		});
 		map.put("ingamePlayers", ingamePlayers.toString());
 		//等待开局玩家数量
 		AtomicInteger waitPlayers = new AtomicInteger(0);
-		TexasStatic.roomList.parallelStream().forEach(room -> {
+		TexasStatic.texasRoomList.parallelStream().forEach(room -> {
 			waitPlayers.getAndAdd(room.getWaitPlayers().size());
 		});
 		map.put("waitPlayers", waitPlayers.toString());

@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.lxrtalk.texas.entity.Player;
-import com.lxrtalk.texas.texas.threeCard.ThreeCardRoom;
+import com.lxrtalk.texas.texas.threeCard.ThreeCardTexasRoom;
 
 public class TexasStatic {
     /**
@@ -21,10 +21,10 @@ public class TexasStatic {
     /**
      * 房间列表，德州扑克
      */
-    public static List<Room> roomList = new CopyOnWriteArrayList<Room>();
+    public static List<TexasRoom> texasRoomList = new CopyOnWriteArrayList<TexasRoom>();
     /**
      * 房间列表，拼三张
      */
-    public static List<ThreeCardRoom> threeCardRoomList = new CopyOnWriteArrayList<ThreeCardRoom>();
+    public static List<ThreeCardTexasRoom> threeCardRoomList = new CopyOnWriteArrayList<ThreeCardTexasRoom>();
 
 }
