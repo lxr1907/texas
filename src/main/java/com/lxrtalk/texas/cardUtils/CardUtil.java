@@ -41,7 +41,8 @@ public class CardUtil {
         }
 
         // 找出最高牌型
-        for (HandRank rank : HandRank.values()) {
+        for (int i = HandRank.values().length - 1; i >= 0; i--) {
+            HandRank rank = HandRank.values()[i];
             List<Integer> hands = handRanks.get(rank);
             if (!hands.isEmpty()) {
                 int maxHandValue = Collections.max(hands);
@@ -157,43 +158,54 @@ public class CardUtil {
     private static int getHandValue(List<Integer> hand) {
         List<Integer> values = new ArrayList<>();
         for (int card : hand) {
-            // 修改为和 drawCards.js 一致的点数计算方式
             int value = (card / 4) + 1;
-            if (value == 1) {
-                value = 13; // A
-            }
             values.add(value);
         }
-        Collections.sort(values, Collections.reverseOrder());
+        // 处理 A 作为最大牌和最小牌的情况
+        if (values.contains(1)) {
+            List<Integer> valuesWithHighA = new ArrayList<>(values);
+            valuesWithHighA.remove((Integer) 1);
+            valuesWithHighA.add(14);
+            List<Integer> sortedValuesWithHighA = new ArrayList<>(valuesWithHighA);
+            sortedValuesWithHighA.sort(Collections.reverseOrder());
+            int highAValue = sortedValuesWithHighA.stream().reduce(0, (a, b) -> a * 100 + b);
 
+            List<Integer> sortedValues = new ArrayList<>(values);
+            sortedValues.sort(Collections.reverseOrder());
+            int normalValue = sortedValues.stream().reduce(0, (a, b) -> a * 100 + b);
+
+            return Math.max(highAValue, normalValue);
+        }
+
+        values.sort(Collections.reverseOrder());
         return values.stream().reduce(0, (a, b) -> a * 100 + b);
     }
 
     // 判断是否为顺子
     // 判断是否为顺子
     private static boolean isStraight(List<Integer> hand) {
-        List<Integer> values = new ArrayList<>();
+        Set<Integer> uniqueValues = new HashSet<>();
+        int minValue = Integer.MAX_VALUE;
+        int maxValue = Integer.MIN_VALUE;
+
         for (int card : hand) {
-            // 修改为和 drawCards.js 一致的点数计算方式
             int value = (card / 4) + 1;
-            if (value == 1) {
-                value = 13; // A
-            }
-            values.add(value);
-        }
-        Collections.sort(values);
-
-        if (values.containsAll(Arrays.asList(1, 10, 11, 12, 13))) {
-            return true; // A, 10, J, Q, K
+            uniqueValues.add(value);
+            minValue = Math.min(minValue, value);
+            maxValue = Math.max(maxValue, value);
         }
 
-        for (int i = 1; i < values.size(); i++) {
-            if (values.get(i) != values.get(i - 1) + 1) {
-                return false;
-            }
+        // 处理 A 作为最小牌的顺子 (A, 2, 3, 4, 5)
+        if (uniqueValues.contains(1) && uniqueValues.contains(2) && uniqueValues.contains(3) && uniqueValues.contains(4) && uniqueValues.contains(5)) {
+            return true;
         }
 
-        return true;
+        // 普通顺子判断
+        if (uniqueValues.size() >= 5 && maxValue - minValue == 4) {
+            return true;
+        }
+
+        return false;
     }
 
     // 判断是否为同花
@@ -205,26 +217,27 @@ public class CardUtil {
         }
         return false;
     }
+
     // 将牌的整数表示转换为字符串表示
     // 将牌的整数表示转换为字符串表示
     public static String cardToString(int card) {
-        String[] suits = {"h", "d", "s", "c"};
+        String[] suits = {"红", "方", "黑", "梅"};
         String[] ranks = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
         int suit = card % 4;
         int rank = (card / 4) + 1; // 修正为和 drawCards.js 一致
         if (rank == 1) {
             rank = 1; // A 对应 ranks[0]
         }
-        return ranks[rank - 1] + suits[suit];
+        return suits[suit] + ranks[rank - 1];
     }
 
     // 将字符串表示的牌转换为整数表示
     public static int stringToCard(String cardStr) {
-        String[] suits = {"h", "d", "s", "c"}; // 修改为和 drawCards.js 一致的花色符号
+        String[] suits = {"红", "方", "黑", "梅"}; // 修改为和 drawCards.js 一致的花色符号
         String[] ranks = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
 
-        String suitStr = cardStr.substring(cardStr.length() - 1);
-        String rankStr = cardStr.substring(0, cardStr.length() - 1);
+        String rankStr = cardStr.substring(1);
+        String suitStr = cardStr.substring(0, 1);
 
         int suit = -1;
         for (int i = 0; i < suits.length; i++) {
@@ -247,7 +260,7 @@ public class CardUtil {
         }
 
         if (rank == 13) {
-            rank = 0; // A
+            rank = 1; // A
         }
         return suit + (rank - 1) * 4;
     }
@@ -269,6 +282,7 @@ public class CardUtil {
         }
         return result;
     }
+
     public static void main(String[] args) {
         // 测试转换方法
         List<Integer> cards = Arrays.asList(0, 13, 26, 39);
@@ -277,6 +291,10 @@ public class CardUtil {
 
         List<Integer> convertedCards = stringsToCardsList(cardStrings);
         System.out.println("字符串列表: " + cardStrings + " 转换为整数列表: " + convertedCards);
-
+        List<String> cards7 = Arrays.asList("梅10", "梅K", "方3", "黑10", "梅5", "方9", "方5");
+        var hand = evaluateHand(stringsToCardsList(cards7));
+        System.out.println(hand);
+        var max = getMaxHand(stringsToCardsList(cards7));
+        System.out.println(cardsToStringList(max));
     }
 }

@@ -300,7 +300,7 @@ public class TexasRoom {
                 }
             }
             gameLog.setEndTime(DateUtil.nowDatetime());
-            gameLog.setCommunityCards(communityCards.toString());
+            gameLog.setCommunityCards(CardUtil.cardsToStringList(communityCards).toString());
             gameLog.setPlayersFinalInfo(JsonUtils.toJson(finalCardsReadMap, finalCardsReadMap.getClass()));
             // 奖池列表
             List<BetPool> betPoolList = new ArrayList<BetPool>();
