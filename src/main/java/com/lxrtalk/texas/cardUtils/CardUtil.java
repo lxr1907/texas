@@ -97,8 +97,10 @@ public class CardUtil {
         Map<Integer, Integer> suitCounts = new HashMap<>();
 
         for (int card : hand) {
-            int value = card % 13;
-            int suit = card / 13;
+            // 修改为和 drawCards.js 一致的点数计算方式
+            int value = (card / 4) + 1;
+            // 修改为和 drawCards.js 一致的花色计算方式
+            int suit = card % 4;
             valueCounts.put(value, valueCounts.getOrDefault(value, 0) + 1);
             suitCounts.put(suit, suitCounts.getOrDefault(suit, 0) + 1);
         }
@@ -107,7 +109,7 @@ public class CardUtil {
         boolean isFlush = isFlush(suitCounts);
 
         if (isStraight && isFlush) {
-            if (Collections.min(hand) % 13 == 8) { // 10, J, Q, K, A
+            if (Collections.min(hand) == 0) { // 根据新的计算方式调整判断条件
                 return HandRank.ROYAL_FLUSH;
             } else {
                 return HandRank.STRAIGHT_FLUSH;
@@ -155,8 +157,9 @@ public class CardUtil {
     private static int getHandValue(List<Integer> hand) {
         List<Integer> values = new ArrayList<>();
         for (int card : hand) {
-            int value = card % 13;
-            if (value == 0) {
+            // 修改为和 drawCards.js 一致的点数计算方式
+            int value = (card / 4) + 1;
+            if (value == 1) {
                 value = 13; // A
             }
             values.add(value);
@@ -167,18 +170,20 @@ public class CardUtil {
     }
 
     // 判断是否为顺子
+    // 判断是否为顺子
     private static boolean isStraight(List<Integer> hand) {
         List<Integer> values = new ArrayList<>();
         for (int card : hand) {
-            int value = card % 13;
-            if (value == 0) {
+            // 修改为和 drawCards.js 一致的点数计算方式
+            int value = (card / 4) + 1;
+            if (value == 1) {
                 value = 13; // A
             }
             values.add(value);
         }
         Collections.sort(values);
 
-        if (values.get(0) == 1 && values.get(1) == 10 && values.get(2) == 11 && values.get(3) == 12 && values.get(4) == 13) {
+        if (values.containsAll(Arrays.asList(1, 10, 11, 12, 13))) {
             return true; // A, 10, J, Q, K
         }
 
@@ -201,21 +206,25 @@ public class CardUtil {
         return false;
     }
     // 将牌的整数表示转换为字符串表示
+    // 将牌的整数表示转换为字符串表示
     public static String cardToString(int card) {
-        String[] suits = {"黑", "红", "梅", "方"};
+        String[] suits = {"h", "d", "s", "c"};
         String[] ranks = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
-        int suit = card / 13;
-        int rank = card % 13;
-        return suits[suit] + ranks[rank];
+        int suit = card % 4;
+        int rank = (card / 4) + 1; // 修正为和 drawCards.js 一致
+        if (rank == 1) {
+            rank = 1; // A 对应 ranks[0]
+        }
+        return ranks[rank - 1] + suits[suit];
     }
 
     // 将字符串表示的牌转换为整数表示
     public static int stringToCard(String cardStr) {
-        String[] suits = {"黑", "红", "梅", "方"};
+        String[] suits = {"h", "d", "s", "c"}; // 修改为和 drawCards.js 一致的花色符号
         String[] ranks = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
 
-        String suitStr = cardStr.substring(0, 1);
-        String rankStr = cardStr.substring(1);
+        String suitStr = cardStr.substring(cardStr.length() - 1);
+        String rankStr = cardStr.substring(0, cardStr.length() - 1);
 
         int suit = -1;
         for (int i = 0; i < suits.length; i++) {
@@ -228,7 +237,7 @@ public class CardUtil {
         int rank = -1;
         for (int i = 0; i < ranks.length; i++) {
             if (ranks[i].equals(rankStr)) {
-                rank = i;
+                rank = i + 1;
                 break;
             }
         }
@@ -237,7 +246,10 @@ public class CardUtil {
             throw new IllegalArgumentException("无效的牌字符串: " + cardStr);
         }
 
-        return suit * 13 + rank;
+        if (rank == 13) {
+            rank = 0; // A
+        }
+        return suit + (rank - 1) * 4;
     }
 
     // 将整数列表转换为字符串列表

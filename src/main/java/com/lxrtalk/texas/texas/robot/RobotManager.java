@@ -45,8 +45,6 @@ public class RobotManager {
                     }
                 }
             }
-            // 关闭线程池
-            executorService.shutdown();
         });
     }
 

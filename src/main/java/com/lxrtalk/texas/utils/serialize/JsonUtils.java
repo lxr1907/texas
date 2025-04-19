@@ -11,8 +11,8 @@ import com.lxrtalk.texas.entity.ListPo;
 
 public class JsonUtils {
 
-	private static Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-	private static Gson gsonAll = new GsonBuilder().create();
+	private static final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+	private static final Gson gsonAll = new GsonBuilder().create();
 
 	public static String toJson(Object src, Type typeOfSrc) {
 		return gson.toJson(src, typeOfSrc);

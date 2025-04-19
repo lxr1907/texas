@@ -44,7 +44,7 @@ public class TexasUtil {
     /**
      * 获取可用房间类型
      *
-     * @param type  1宝鸡拼三张，不传默认德州扑克
+     * @param type 1宝鸡拼三张，不传默认德州扑克
      */
     public static Room getUsableRoomThenIn(int level, Player p, int type) {
         // 加入游戏类型，1宝鸡拼三张，不传默认德州扑克
@@ -232,6 +232,13 @@ public class TexasUtil {
      */
     public static void movePlayers(List<Player> from, List<Player> to) {
         while (!from.isEmpty()) {
+            to.add(from.get(0));// 添加来源列表的首位到目标列表
+            from.remove(0);// 移除来源列表的首位
+        }
+    }
+
+    public static void moveMaxPlayers(List<Player> from, List<Player> to, int max) {
+        while (!from.isEmpty() && to.size() < max) {
             to.add(from.get(0));// 添加来源列表的首位到目标列表
             from.remove(0);// 移除来源列表的首位
         }
@@ -529,7 +536,6 @@ public class TexasUtil {
 
     /**
      * 改变玩家chips的方法
-     *
      */
     public static void changePlayerChips(Player p, Long chips) {
         synchronized (p) {
@@ -674,7 +680,6 @@ public class TexasUtil {
 
     /**
      * 向除currPlayer之外的玩家发送message
-     *
      */
     public static void sendMessageToOtherPlayers(String selfId, Room room, String message) {
         if (room == null) {
