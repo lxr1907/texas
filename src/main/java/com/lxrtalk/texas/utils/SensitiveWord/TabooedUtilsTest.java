@@ -35,7 +35,7 @@ public class TabooedUtilsTest {
 		TabooedUtils.reloadTabooedWords();
 
 		final StringBuilder sb = new StringBuilder();
-		InputStream in = TabooedWords.class.getClassLoader().getResourceAsStream("tabooed_test_file.txt");
+		InputStream in = TabooedWords.class.getClassLoader().getResourceAsStream("classpath:tabooed_test_file.txt");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 		for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 			sb.append(line);
