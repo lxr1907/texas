@@ -12,6 +12,7 @@
 </div>
 <div id="roomDiv"></div>
 <div id="messages"></div>
+<div id="fps"></div>
 <script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.js"></script>
 <script src="texasJS/view.js"></script>
 <script src="texasJS/message.js"></script>
@@ -39,6 +40,10 @@
         $(canvas).appendTo("#canvasDiv");
         texasContext = canvas.getContext("2d");
 
+        // 新增：用于计算 FPS 的变量
+        let frames = 0;
+        let lastFPSUpdate = Date.now();
+
         // 游戏主函数
         var then = Date.now();
         var main = function () {
@@ -48,6 +53,17 @@
             update(delta / 1000);
             render();
             then = now;
+
+            // 新增：更新帧数
+            frames++;
+            const currentTime = Date.now();
+            if (currentTime - lastFPSUpdate >= 1000) { // 每秒钟更新一次 FPS
+                const fps = frames;
+                $('#fps').text(`FPS: ${fps}`);
+                frames = 0;
+                lastFPSUpdate = currentTime;
+            }
+
             // 立即调用主函数
             requestAnimationFrame(main);
         };
