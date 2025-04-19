@@ -195,7 +195,7 @@ function removePlayer(player) {
         player.betPosition = null;
     }
     clearCards(player);
-    if (player.seatNum == roomInfo.nextturn) {
+    if (player.seatNum == roomInfo.nextTurn) {
         cancelTimeBar();
     }
 }

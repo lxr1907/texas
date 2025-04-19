@@ -151,7 +151,7 @@ public class RobotOperationsUtil {
                 }
             }
             // 房间信息
-            int turn = roomInfo.getNextturn();
+            int turn = roomInfo.getNextTurn();
             if (turn == robotClient.player.getSeatNum()) {
                 robotOpt(robotClient);
             }

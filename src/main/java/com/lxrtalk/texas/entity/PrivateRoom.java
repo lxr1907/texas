@@ -45,14 +45,14 @@ public class PrivateRoom implements Serializable {
 	@Expose
 	private int roundMaxBet;
 	@Expose
-	private int nextturn;
+	private int nextTurn;
 	@Expose
 	private int dealer;
 
 	/**
 	 * 每轮第一个行动的玩家
 	 */
-	protected int roundturn = 0;
+	protected int roundTurn = 0;
 
 	/**
 	 * 房间中处于等待状态的玩家列表
@@ -75,7 +75,7 @@ public class PrivateRoom implements Serializable {
 		setBigBet(texasRoom.getConfig().getBigBet());
 		setIngamePlayers(texasRoom.getIngamePlayers());
 		setWaitPlayers(texasRoom.getWaitPlayers());
-		setNextturn(texasRoom.getNextTurn());
+		setNextTurn(texasRoom.getNextTurn());
 		setCommunityCards(texasRoom.getCommunityCards());
 		setBetAmount(texasRoom.getBetAmount());
 		setOptTimeout(texasRoom.getConfig().getOptTimeout());
@@ -90,12 +90,12 @@ public class PrivateRoom implements Serializable {
 	public void setRoundMaxBet(int roundMaxBet) {
 		this.roundMaxBet = roundMaxBet;
 	}
-	public int getRoundturn() {
-		return roundturn;
+	public int getRoundTurn() {
+		return roundTurn;
 	}
 
-	public void setRoundturn(int roundturn) {
-		this.roundturn = roundturn;
+	public void setRoundTurn(int roundTurn) {
+		this.roundTurn = roundTurn;
 	}
 
 	public List<Integer> getCommunityCards() {
@@ -130,12 +130,12 @@ public class PrivateRoom implements Serializable {
 		this.dealer = dealer;
 	}
 
-	public int getNextturn() {
-		return nextturn;
+	public int getNextTurn() {
+		return nextTurn;
 	}
 
-	public void setNextturn(int nextturn) {
-		this.nextturn = nextturn;
+	public void setNextTurn(int nextTurn) {
+		this.nextTurn = nextTurn;
 	}
 
 	public int getBigBet() {

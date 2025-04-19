@@ -516,7 +516,7 @@ public class TexasRoom {
     /**
      * 判断游戏是否可以开始
      */
-    public void checkStart(int milsecond) {
+    public synchronized void checkStart(int milsecond) {
         try {
             Thread.sleep(milsecond);
         } catch (InterruptedException e) {

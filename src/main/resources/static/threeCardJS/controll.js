@@ -307,7 +307,7 @@ function drawRoomInfos() {
     }
     // 操作倒计时
     timeBar.time = roomInfo.optTimeout / 1000;
-    createTimeBar(getPlayerBySeatNum(roomInfo.nextturn));
+    createTimeBar(getPlayerBySeatNum(roomInfo.nextTurn));
 }
 //收到看牌结果
 function onLookCards(e, data) {
